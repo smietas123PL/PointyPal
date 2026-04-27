@@ -1,0 +1,20 @@
+<UserControl x:Class="PointyPal.Overlay.CursorAvatarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="60" Height="60">
+    <UserControl.Resources>
+        <Storyboard x:Key="PulseAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="GlowEffect" 
+                             Storyboard.TargetProperty="BlurRadius"
+                             From="10" To="25" Duration="0:0:1" AutoReverse="True" />
+        </Storyboard>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Ellipse x:Name="AvatarCore" Width="20" Height="20" Fill="#FF4DD0E1">
+            <Ellipse.Effect>
+                <DropShadowEffect x:Name="GlowEffect" Color="#FF00BCD4" BlurRadius="15" ShadowDepth="0" />
+            </Ellipse.Effect>
+        </Ellipse>
+    </Grid>
+</UserControl>

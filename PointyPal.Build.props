@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <AppName>PointyPal</AppName>
+    <Version>0.21.0</Version>
+    <AssemblyVersion>0.21.0.0</AssemblyVersion>
+    <FileVersion>0.21.0.0</FileVersion>
+    <BuildChannel>private-rc</BuildChannel>
+    <ReleaseLabel>private-rc.1</ReleaseLabel>
+    <BaselineDate>2026-04-27</BaselineDate>
+    <BuildDate Condition="'$(BuildDate)' == ''"></BuildDate>
+    <GitCommit Condition="'$(GitCommit)' == ''"></GitCommit>
+    <WorkerContractVersion>1.1.0</WorkerContractVersion>
+  </PropertyGroup>
+</Project>

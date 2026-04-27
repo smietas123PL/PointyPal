@@ -1,0 +1,71 @@
+<Window x:Class="PointyPal.UI.QuickAskWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Quick Ask" Height="250" Width="400"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ShowInTaskbar="False" Topmost="True" ResizeMode="NoResize"
+        WindowStartupLocation="Manual">
+    <Border CornerRadius="12" Background="#F8F9FA" BorderBrush="#DEE2E6" BorderThickness="1" Padding="15">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="15" Color="Black" Opacity="0.2" ShadowDepth="2"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Quick Ask" FontSize="16" FontWeight="SemiBold" Foreground="#212529" Margin="0,0,0,10"/>
+
+            <TextBox x:Name="InputTextBox" Grid.Row="1" FontSize="14" Padding="8" AcceptsReturn="True" 
+                     TextWrapping="Wrap" Background="White" BorderBrush="#CED4DA" BorderThickness="1"
+                     VerticalContentAlignment="Top" PreviewKeyDown="InputTextBox_PreviewKeyDown"
+                     TextChanged="InputTextBox_TextChanged"/>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0" VerticalAlignment="Center">
+                <ComboBox x:Name="ModeComboBox" Width="100" Padding="5" Margin="0,0,10,0" SelectedIndex="0">
+                    <ComboBoxItem Content="Assist" Tag="Assist"/>
+                    <ComboBoxItem Content="Point" Tag="Point"/>
+                    <ComboBoxItem Content="Explain" Tag="Explain"/>
+                    <ComboBoxItem Content="Summarize" Tag="Summarize"/>
+                    <ComboBoxItem Content="Read Screen" Tag="ReadScreen"/>
+                    <ComboBoxItem Content="Debug" Tag="Debug"/>
+                    <ComboBoxItem Content="Translate" Tag="Translate"/>
+                    <ComboBoxItem Content="No Point" Tag="NoPoint"/>
+                </ComboBox>
+
+                <CheckBox x:Name="ScreenshotToggle" Content="📷" ToolTip="Screenshot" IsChecked="True" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                <CheckBox x:Name="UiAutomationToggle" Content="🔍" ToolTip="UI Context" IsChecked="True" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                <CheckBox x:Name="TtsToggle" Content="🔊" ToolTip="TTS" IsChecked="True" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                <CheckBox x:Name="PointerToggle" Content="🎯" ToolTip="Pointer" IsChecked="True" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Grid Grid.Row="3" Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="StatusTextBlock" Text="" Foreground="#6C757D" VerticalAlignment="Center" FontSize="12"/>
+                
+                <Button Grid.Column="1" Content="Cancel" Click="CancelButton_Click" Padding="12,6" Margin="0,0,10,0"
+                        Background="Transparent" BorderThickness="0" Foreground="#495057" FontWeight="Medium" Cursor="Hand"/>
+                
+                <Button Grid.Column="2" x:Name="SendButton" Content="Send" Click="SendButton_Click" Padding="15,6" 
+                        Background="#0D6EFD" Foreground="White" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="6"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

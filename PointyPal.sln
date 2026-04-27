@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointyPal", "PointyPal.csproj", "{23B4E5E2-904F-40EC-93FD-81395DCD196D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{088441E3-871E-4229-A3AA-D7D8CE5BD3D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PointyPal.Tests", "tests\PointyPal.Tests\PointyPal.Tests.csproj", "{CB183053-BD04-442F-9C97-8F6ABA76CA60}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{23B4E5E2-904F-40EC-93FD-81395DCD196D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23B4E5E2-904F-40EC-93FD-81395DCD196D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB183053-BD04-442F-9C97-8F6ABA76CA60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB183053-BD04-442F-9C97-8F6ABA76CA60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB183053-BD04-442F-9C97-8F6ABA76CA60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB183053-BD04-442F-9C97-8F6ABA76CA60}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CB183053-BD04-442F-9C97-8F6ABA76CA60} = {088441E3-871E-4229-A3AA-D7D8CE5BD3D5}
+	EndGlobalSection
+EndGlobal

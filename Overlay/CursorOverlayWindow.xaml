@@ -1,0 +1,14 @@
+<Window x:Class="PointyPal.Overlay.CursorOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:PointyPal.Overlay"
+        Title="PointyPal Overlay" 
+        AllowsTransparency="True" 
+        WindowStyle="None" 
+        Topmost="True" 
+        ShowInTaskbar="False"
+        Background="Transparent"
+        Focusable="False"
+        Width="60" Height="60">
+    <local:CursorAvatarView x:Name="Avatar" />
+</Window>

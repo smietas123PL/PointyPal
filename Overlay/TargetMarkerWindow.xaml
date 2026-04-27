@@ -1,0 +1,26 @@
+<Window x:Class="PointyPal.Overlay.TargetMarkerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TargetMarkerWindow" Height="100" Width="100"
+        AllowsTransparency="True" WindowStyle="None" Topmost="True" ShowInTaskbar="False"
+        Background="Transparent" Focusable="False" IsHitTestVisible="False">
+    <Window.Resources>
+        <Storyboard x:Key="PulseAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="Ring" Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:1" />
+            <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleX" From="1.0" To="2.0" Duration="0:0:1" />
+            <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleY" From="1.0" To="2.0" Duration="0:0:1" />
+        </Storyboard>
+    </Window.Resources>
+    <Grid>
+        <Ellipse x:Name="Ring" Width="20" Height="20" Stroke="#FF4DD0E1" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Ellipse.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="Scale" CenterX="10" CenterY="10" />
+                    <TranslateTransform X="0" Y="0" />
+                </TransformGroup>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+        <Ellipse Width="10" Height="10" Fill="#FF4DD0E1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBlock Text="test target" Foreground="White" FontSize="10" Margin="0,30,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Grid>
+</Window>

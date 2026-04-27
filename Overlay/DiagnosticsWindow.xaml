@@ -1,0 +1,278 @@
+<Window x:Class="PointyPal.Overlay.DiagnosticsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DiagnosticsWindow" Height="700" Width="350"
+        AllowsTransparency="True" WindowStyle="None" Topmost="True" ShowInTaskbar="False"
+        Background="#88000000" Focusable="False" IsHitTestVisible="False">
+    <ScrollViewer VerticalScrollBarVisibility="Hidden">
+        <StackPanel Margin="10">
+            <TextBlock Foreground="White" FontSize="10" FontFamily="Consolas">
+                <Run Text="Cursor X: "/><Run x:Name="CursorXText" Text="0"/>
+                <Run Text=" Y: "/><Run x:Name="CursorYText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Avatar X: "/><Run x:Name="AvatarXText" Text="0"/>
+                <Run Text=" Y: "/><Run x:Name="AvatarYText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Monitor: "/><Run x:Name="MonitorBoundsText" Text="0,0,0,0"/>
+                <LineBreak/>
+                <Run Text="State: "/><Run x:Name="StateText" Text="Unknown"/>
+                <LineBreak/>
+                <Run Text="Reason: "/><Run x:Name="ReasonText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Build 011 Control &amp; Health --"/><LineBreak/>
+                <Run Text="Control Center Open: "/><Run x:Name="CcOpenText" Text="No"/>
+                <LineBreak/>
+                <Run Text="Last Save: "/><Run x:Name="LastSaveText" Text="-"/>
+                <LineBreak/>
+                <Run Text="First-run Setup: "/><Run x:Name="FirstRunText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Worker Status: "/><Run x:Name="DiagWorkerStatusText" Text="Unknown"/>
+                <LineBreak/>
+                <Run Text="Health Error: "/><Run x:Name="DiagHealthErrorText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Build010 Guards &amp; Privacy --"/><LineBreak/>
+                <Run Text="Guard Blocked: "/><Run x:Name="GuardBlockedText" Text="No"/>
+                <LineBreak/>
+                <Run Text="Block Reason: "/><Run x:Name="BlockReasonText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Cancel Reason: "/><Run x:Name="CancelReasonText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Privacy SaveDebug: "/><Run x:Name="PrivacySaveDebugText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Privacy Redact: "/><Run x:Name="PrivacyRedactText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Debug Folder: "/><Run x:Name="DebugFolderCountText" Text="0 files"/><Run Text=" "/><Run x:Name="DebugFolderSizeText" Text="0B"/>
+                <LineBreak/>
+                <Run Text="-- Usage Today --"/><LineBreak/>
+                <Run Text="Interactions: "/><Run x:Name="UsageInteractionsText" Text="0"/><Run Text="/"/><Run x:Name="LimitInteractionsText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Claude Reqs: "/><Run x:Name="UsageClaudeText" Text="0"/><Run Text="/"/><Run x:Name="LimitClaudeText" Text="0"/>
+                <LineBreak/>
+                <Run Text="STT Seconds: "/><Run x:Name="UsageSttText" Text="0"/><Run Text="/"/><Run x:Name="LimitSttText" Text="0"/>
+                <LineBreak/>
+                <Run Text="TTS Chars: "/><Run x:Name="UsageTtsText" Text="0"/><Run Text="/"/><Run x:Name="LimitTtsText" Text="0"/>
+                <LineBreak/>
+                <Run Text="-- Interaction --"/><LineBreak/>
+                <Run Text="Capture Size: "/><Run x:Name="CaptureSizeText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Cursor Img X: "/><Run x:Name="CursorImgXText" Text="-"/>
+                <Run Text=" Y: "/><Run x:Name="CursorImgYText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Target Img X: "/><Run x:Name="TargetImgXText" Text="-"/>
+                <Run Text=" Y: "/><Run x:Name="TargetImgYText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Provider: "/><Run x:Name="ProviderText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Worker: "/><Run x:Name="WorkerText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Clean: "/><Run x:Name="CleanText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Clamped: "/><Run x:Name="ClampedText" Text="No"/>
+                <LineBreak/>
+                <Run Text="Time: "/><Run x:Name="TimeText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Error: "/><Run x:Name="ErrorText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Build 016 Performance --"/><LineBreak/>
+                <Run Text="Last Total: "/><Run x:Name="LastInteractionTotalText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Active Timeline: "/><Run x:Name="ActiveTimelineIdText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Active Step: "/><Run x:Name="ActiveTimelineStepText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Slowest Step: "/><Run x:Name="LastSlowestStepText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Last STT: "/><Run x:Name="LastTimelineSttText" Text="-"/>
+                <Run Text=" Claude: "/><Run x:Name="LastTimelineClaudeText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Last TTS: "/><Run x:Name="LastTimelineTtsText" Text="-"/>
+                <Run Text=" UIA: "/><Run x:Name="LastTimelineUiaText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Last Screenshot: "/><Run x:Name="LastTimelineScreenshotText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Timeline Logging: "/><Run x:Name="TimelineLoggingEnabledText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Latest Timeline: "/><Run x:Name="LatestTimelinePathText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Perf Summary: "/><Run x:Name="PerformanceSummaryPathText" Text="-"/>
+                <LineBreak/>
+                <Run Text="P50/P95: "/><Run x:Name="P50TotalText" Text="-"/><Run Text=" / "/><Run x:Name="P95TotalText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Timeline Reason: "/><Run x:Name="TimelineReasonText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Voice --"/><LineBreak/>
+                <Run Text="Mic Avail: "/><Run x:Name="MicAvailText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Recording: "/><Run x:Name="RecordingText" Text="No"/>
+                <LineBreak/>
+                <Run Text="Rec Duration: "/><Run x:Name="RecDurationText" Text="0ms"/>
+                <LineBreak/>
+                <Run Text="Transcript: "/><Run x:Name="TranscriptText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Trans Dur: "/><Run x:Name="TransDurText" Text="0ms"/>
+                <LineBreak/>
+                <Run Text="Trans Err: "/><Run x:Name="TransErrText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- TTS --"/><LineBreak/>
+                <Run Text="TTS Enabled: "/><Run x:Name="TtsEnabledText" Text="-"/>
+                <LineBreak/>
+                <Run Text="TTS Provider: "/><Run x:Name="TtsProviderText" Text="-"/>
+                <LineBreak/>
+                <Run Text="TTS Dur: "/><Run x:Name="TtsDurationText" Text="0ms"/>
+                <LineBreak/>
+                <Run Text="TTS Err: "/><Run x:Name="TtsErrText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Playback: "/><Run x:Name="PlaybackText" Text="No"/>
+                <LineBreak/>
+                <Run Text="-- Build 012 UI Automation --"/><LineBreak/>
+                <Run Text="Enabled: "/><Run x:Name="UiEnabledText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Build 017 Lifecycle --"/><LineBreak/>
+                <Run Text="Version: "/><Run x:Name="AppVersionText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Channel: "/><Run x:Name="AppChannelText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Release: "/><Run x:Name="AppReleaseText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Worker Contract: "/><Run x:Name="WorkerContractText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Uptime: "/><Run x:Name="UptimeText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Primary Instance: "/><Run x:Name="PrimaryInstanceText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Second Launches: "/><Run x:Name="SecondInstanceCountText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Start With Windows: "/><Run x:Name="StartWithWindowsText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Crash Logging: "/><Run x:Name="CrashLoggingText" Text="-"/>
+                <LineBreak/>
+                <Run Text="App Logging: "/><Run x:Name="AppLoggingText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Logs Folder: "/><Run x:Name="LogsFolderText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Latest Crash: "/><Run x:Name="LatestCrashPathText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Shutdown Reason: "/><Run x:Name="LastShutdownReasonText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Log Level: "/><Run x:Name="CurrentLogLevelText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Active Win: "/><Run x:Name="ActiveWinText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Cursor Elem: "/><Run x:Name="CursorElemText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Focus Elem: "/><Run x:Name="FocusElemText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Nearby Count: "/><Run x:Name="NearbyCountText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Capture Dur: "/><Run x:Name="UiCaptureDurText" Text="0ms"/>
+                <LineBreak/>
+                <Run Text="UI Error: "/><Run x:Name="UiErrorText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Build 013 Point Accuracy --"/><LineBreak/>
+                <Run Text="Mapped Screen: "/><Run x:Name="MappedScreenTargetText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Final Screen: "/><Run x:Name="FinalScreenTargetText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Snapped: "/><Run x:Name="SnappedText" Text="No"/>
+                <LineBreak/>
+                <Run Text="Adjust Reason: "/><Run x:Name="AdjustReasonText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Nearest UIA: "/><Run x:Name="NearestUiaText" Text="-"/>
+                <LineBreak/>
+                <Run Text="UIA Distance: "/><Run x:Name="UiaDistanceText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Response Valid: "/><Run x:Name="ResponseValidText" Text="Yes"/>
+                <LineBreak/>
+                <Run Text="Val Warning: "/><Run x:Name="ValWarningText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Manual Rating: "/><Run x:Name="ManualRatingText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Latest Attempt: "/><Run x:Name="LatestAttemptPathText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Build 014 Interactions &amp; History --"/><LineBreak/>
+                <Run Text="Default Mode: "/><Run x:Name="DefaultModeText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Last Mode: "/><Run x:Name="LastModeText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Quick Ask Open: "/><Run x:Name="QuickAskOpenText" Text="No"/>
+                <LineBreak/>
+                <Run Text="Last Quick Ask: "/><Run x:Name="LastQuickAskText" Text="-"/>
+                <LineBreak/>
+                <Run Text="History Enabled: "/><Run x:Name="HistoryEnabledText" Text="-"/>
+                <LineBreak/>
+                <Run Text="History File: "/><Run x:Name="HistoryFileText" Text="-"/>
+                <LineBreak/>
+                <Run Text="History Count: "/><Run x:Name="HistoryCountText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Last Clean Resp: "/><Run x:Name="LastCleanRespText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Last Provider: "/><Run x:Name="LastProviderText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Build 015 Self-Test --"/><LineBreak/>
+                <Run Text="Status: "/><Run x:Name="SelfTestStatusText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Mode: "/><Run x:Name="SelfTestModeText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Duration: "/><Run x:Name="SelfTestDurationText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Failed: "/><Run x:Name="SelfTestFailedScenarioText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Report: "/><Run x:Name="SelfTestReportPathText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Running: "/><Run x:Name="SelfTestRunningText" Text="No"/>
+                <LineBreak/>
+                <Run Text="Last Error: "/><Run x:Name="SelfTestLastErrorText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Build 018 RC Prep --"/><LineBreak/>
+                <Run Text="Safe Mode: "/><Run x:Name="SafeModeActiveText" Text="No"/>
+                <LineBreak/>
+                <Run Text="Safe Reason: "/><Run x:Name="SafeModeReasonText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Preflight Status: "/><Run x:Name="PreflightStatusText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Preflight Report: "/><Run x:Name="PreflightReportPathText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Backups: "/><Run x:Name="BackupCountText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Latest Backup: "/><Run x:Name="LatestBackupPathText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Last Reset: "/><Run x:Name="LastResetActionText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Args: "/><Run x:Name="CommandLineArgsText" Text="-"/>
+                <LineBreak/>
+                <Run Text="-- Build 020 RC Readiness --"/><LineBreak/>
+                <Run Text="RC Status: "/><Run x:Name="RcReadinessStatusText" Text="-"/>
+                <LineBreak/>
+                <Run Text="RC Score: "/><Run x:Name="RcReadinessScoreText" Text="0"/>
+                <LineBreak/>
+                <Run Text="RC Checked: "/><Run x:Name="RcReadinessTimeText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Failed Startups: "/><Run x:Name="FailedStartupsText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Crash Loop SM: "/><Run x:Name="CrashLoopSafeModeText" Text="No"/>
+                <LineBreak/>
+                <Run Text="-- Build 019 Resilience --"/><LineBreak/>
+                <Run Text="ResStatus: "/><Run x:Name="ResStatusText" Text="Healthy"/>
+                <LineBreak/>
+                <Run Text="Failures: "/><Run x:Name="ResFailuresText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Fallback: "/><Run x:Name="ResFallbackText" Text="No"/>
+                <LineBreak/>
+                <Run Text="Memory: "/><Run x:Name="ResMemoryText" Text="0MB"/>
+                <LineBreak/>
+                <Run Text="CPU Usage: "/><Run x:Name="ResCpuText" Text="0%"/>
+                <LineBreak/>
+                <Run Text="Handles: "/><Run x:Name="ResHandlesText" Text="0"/>
+                <LineBreak/>
+                <Run Text="Threads: "/><Run x:Name="ResThreadsText" Text="0"/>
+                <LineBreak/>
+                <Run Text="GDI/USER: "/><Run x:Name="ResGdiUserText" Text="0/0"/>
+                <LineBreak/>
+                <Run Text="Display Cnt: "/><Run x:Name="ResDisplayCntText" Text="1"/>
+                <LineBreak/>
+                <Run Text="Res Warning: "/><Run x:Name="ResWarningText" Text="No"/>
+                <LineBreak/>
+            </TextBlock>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

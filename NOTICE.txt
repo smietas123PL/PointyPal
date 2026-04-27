@@ -1,0 +1,6 @@
+PointyPal Private Release Candidate
+
+For private/internal testing only.
+Do not redistribute.
+
+This package may be unsigned. Windows SmartScreen or Defender warnings are expected for private RC builds until a signed public distribution path is established.

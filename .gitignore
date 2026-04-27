@@ -1,0 +1,49 @@
+# Standard .NET / WPF exclusions
+bin/
+obj/
+.vs/
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.user
+*.suo
+
+# Project specific artifacts
+artifacts/
+debug/
+logs/
+exports/
+backups/
+history/
+issues/
+dogfood/
+state/
+
+# Temp and log files
+*.log
+*.tmp
+*.bak
+build_errors.txt
+
+# Local configuration and secrets
+config.json
+usage.json
+.env
+# Secret files
+*.secret
+*.key
+*.pem
+*.pfx
+*.p12
+*.cer
+*.pvk
+*.spc
+certs/
+signing/
+secrets/
+
+# Node.js (for worker)
+node_modules/
+.wrangler/
+dist/

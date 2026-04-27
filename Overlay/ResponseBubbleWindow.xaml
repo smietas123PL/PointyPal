@@ -1,0 +1,16 @@
+<Window x:Class="PointyPal.Overlay.ResponseBubbleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ResponseBubble" 
+        SizeToContent="WidthAndHeight"
+        AllowsTransparency="True" 
+        WindowStyle="None" 
+        Topmost="True" 
+        ShowInTaskbar="False"
+        Background="Transparent"
+        Focusable="False"
+        IsHitTestVisible="False">
+    <Border Background="#CC000000" CornerRadius="8" Padding="10" Margin="10">
+        <TextBlock x:Name="MessageText" Foreground="White" FontSize="14" MaxWidth="300" TextWrapping="Wrap" />
+    </Border>
+</Window>

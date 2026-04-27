@@ -1,0 +1,1157 @@
+<Window x:Class="PointyPal.UI.ControlCenterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="PointyPal Control Center" Height="700" Width="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F5F7"
+        FontFamily="Segoe UI Semibold">
+    <Window.Resources>
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderBrush" Value="#DDDDDD"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="180"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <DropShadowEffect x:Key="PremiumShadow" BlurRadius="15" Color="#000000" Opacity="0.1" ShadowDepth="2"/>
+    </Window.Resources>
+    
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#FFFFFF" Padding="20,15" CornerRadius="8" Margin="0,0,0,15" Effect="{StaticResource PremiumShadow}">
+            <StackPanel>
+                <TextBlock Text="PointyPal Control Center" FontSize="24" FontWeight="Bold" Foreground="#1D1D1F"/>
+                <TextBlock x:Name="FirstRunBanner" Text="Configure Worker URL and WorkerClientKey to enable real AI/STT/TTS." Foreground="#D70015" Visibility="Collapsed" Margin="0,5,0,0"/>
+                <TextBlock x:Name="ProviderSetupWarningText" Text="Fake providers are only available in Developer Mode." Foreground="#D70015" Visibility="Collapsed" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                <Border x:Name="DeveloperModeBanner" Background="#E8F2FF" BorderBrush="#0071E3" BorderThickness="1" Padding="10" CornerRadius="4" Margin="0,5,0,0" Visibility="Collapsed">
+                    <TextBlock Text="Developer Mode - simulated providers may be used." Foreground="#004A99" FontWeight="Bold" TextWrapping="Wrap"/>
+                </Border>
+                <Border x:Name="SafeModeBanner" Background="#FFF9C4" BorderBrush="#FBC02D" BorderThickness="1" Padding="10" CornerRadius="4" Margin="0,5,0,0" Visibility="Collapsed">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="⚠️ Safe Mode Active:" FontWeight="Bold" Foreground="#856404" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="SafeModeReasonText" Text="Real AI/STT/TTS calls are disabled. Simulated responses are for diagnostics only." Foreground="#856404" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <WrapPanel>
+                            <Button x:Name="ExitSafeModeBtn" Content="Exit Safe Mode on Next Launch" Click="ExitSafeModeBtn_Click" Margin="0,0,5,0" Padding="8,4" Background="#FBC02D" Foreground="#1D1D1F" BorderThickness="0"/>
+                            <Button x:Name="RecoveryDocsBtn" Content="Open Recovery Docs" Click="RecoveryDocsBtn_Click" Margin="0,0,5,0" Padding="8,4"/>
+                            <Button x:Name="RunPreflightBannerBtn" Content="Run Preflight" Click="RunPreflightBtn_Click" Margin="0,0,5,0" Padding="8,4"/>
+                            <Button x:Name="RestoreBackupBannerBtn" Content="Restore Latest Backup" Click="RestoreLatestBackupBtn_Click" Margin="0,0,5,0" Padding="8,4"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <TabControl x:Name="MainTabs" Grid.Row="1" Background="Transparent" BorderThickness="0">
+            <!-- Getting Started -->
+            <TabItem x:Name="GettingStartedTab" Header="Getting Started">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Quick Setup">
+                            <StackPanel>
+                                <TextBlock Text="New to PointyPal? Run the guided setup wizard to configure your Worker and hardware." TextWrapping="Wrap" Margin="0,0,0,15"/>
+                                <Button x:Name="RunWizardBtn" Content="🚀 Run Setup Wizard" Click="RunWizardBtn_Click" Padding="20,10" Background="#0071E3" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+                                <Button x:Name="ResetOnboardingBtn" Content="Reset Onboarding Marker" Click="ResetOnboardingBtn_Click" Margin="0,10,0,0" Padding="10,5" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Tutorials">
+                            <StackPanel>
+                                <Expander Header="1. Ask by Voice (Push-to-Talk)" Margin="0,5">
+                                    <TextBlock Text="Hold Right Ctrl to start listening. Speak your request (e.g., 'What is this button?'). Release the key to send. PointyPal will analyze your screen and respond." TextWrapping="Wrap" Margin="10"/>
+                                </Expander>
+                                <Expander Header="2. Quick Ask (Type)" Margin="0,5">
+                                    <TextBlock Text="Press Ctrl + Space to open the Quick Ask box. Type your request and press Enter. This is great for text-only queries or when you can't speak." TextWrapping="Wrap" Margin="10"/>
+                                </Expander>
+                                <Expander Header="3. Cancel with Escape" Margin="0,5">
+                                    <TextBlock Text="If PointyPal is taking too long or you want to dismiss a response bubble, just press Escape. It instantly cancels any active operation." TextWrapping="Wrap" Margin="10"/>
+                                </Expander>
+                                <Expander Header="4. Pointer Explanation" Margin="0,5">
+                                    <TextBlock Text="When PointyPal mentions a UI element, it will fly its pointer to that location on your screen. This helps you find exactly what it's talking about." TextWrapping="Wrap" Margin="10"/>
+                                </Expander>
+                                <Expander Header="5. Privacy &amp; Data" Margin="0,5">
+                                    <TextBlock Text="PointyPal only captures your screen when you ask it to. All data is sent through your own Cloudflare Worker to Claude. No data is stored on PointyPal's servers." TextWrapping="Wrap" Margin="10"/>
+                                </Expander>
+                                <Expander Header="6. Developer vs Normal Mode" Margin="0,5">
+                                    <TextBlock Text="Normal Mode is for daily use with real AI. Developer Mode allows using 'Fake' providers for testing without incurring costs or sending real data." TextWrapping="Wrap" Margin="10"/>
+                                </Expander>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Initial Setup Checklist" x:Name="OnboardingGroup">
+                            <StackPanel>
+                                <ItemsControl x:Name="OnboardingList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#EEEEEE" BorderThickness="0,0,0,1" Padding="0,10">
+                                                <DockPanel>
+                                                    <TextBlock Text="{Binding StatusIcon}" Width="30" FontSize="18" VerticalAlignment="Center"/>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                                        <TextBlock Text="{Binding Hint}" FontSize="11" Foreground="#86868B"/>
+                                                    </StackPanel>
+                                                    <Button Content="{Binding ActionText}" Click="OnboardingAction_Click" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="10,5" Visibility="{Binding ActionVisibility}"/>
+                                                </DockPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button x:Name="CompleteOnboardingBtn" Content="Mark Onboarding as Completed" Click="CompleteOnboardingBtn_Click" Margin="0,20,0,0" Padding="20,10" Background="#34C759" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+                                <CheckBox x:Name="ShowOnStartupCheck" Content="Show this checklist on startup until completed" IsChecked="{Binding ShowOnboardingOnStartup}" Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Status -->
+            <TabItem x:Name="StatusTab" Header="Status">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Daily Overview">
+                            <StackPanel>
+                                <UniformGrid Columns="2">
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Mode" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusModeText" Text="Normal" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Worker" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusWorkerText" Text="Healthy" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Worker Auth" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusAuthText" Text="Configured" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="AI Ready" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusAiReadyText" Text="No" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Voice Input Ready" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusVoiceReadyText" Text="No" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="TTS Ready" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusTtsReadyText" Text="No" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Safe Mode" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusSafeModeText" Text="No" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Developer Mode" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusDeveloperModeText" Text="No" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Interactions" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusInteractionsText" Text="0 / 100" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Last Error" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusErrorText" Text="None" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Build" Foreground="#86868B"/>
+                                        <TextBlock x:Name="StatusBuildText" Text="-" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </UniformGrid>
+                                <Separator Margin="0,10"/>
+                                <GroupBox Header="Active Providers">
+                                    <StackPanel>
+                                        <DockPanel Margin="0,2">
+                                            <Label Content="AI:"/>
+                                            <TextBlock x:Name="ActiveAiText" Text="-" VerticalAlignment="Center"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,2">
+                                            <Label Content="STT:"/>
+                                            <TextBlock x:Name="ActiveSttText" Text="-" VerticalAlignment="Center"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,2">
+                                            <Label Content="TTS:"/>
+                                            <TextBlock x:Name="ActiveTtsText" Text="Disabled" VerticalAlignment="Center"/>
+                                        </DockPanel>
+                                        <DockPanel Margin="0,2">
+                                            <Label Content="Last Request ID:"/>
+                                            <TextBlock x:Name="StatusRequestIdText" Text="None" VerticalAlignment="Center" FontSize="11" FontFamily="Consolas"/>
+                                        </DockPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Basic Settings -->
+            <TabItem x:Name="BasicTab" Header="Basic Settings">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Daily Settings">
+                            <StackPanel>
+                                <CheckBox Content="Voice Input" IsChecked="{Binding VoiceInputEnabled}"/>
+                                <CheckBox Content="Screenshot Context" IsChecked="{Binding ScreenshotEnabled}"/>
+                                <CheckBox Content="Voice Output / TTS" IsChecked="{Binding TtsEnabled}"/>
+                                <CheckBox Content="Pointer Flight" IsChecked="{Binding PointerFlightEnabled}"/>
+                                <CheckBox Content="Start with Windows" IsChecked="{Binding StartWithWindows}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Developer Mode">
+                            <StackPanel>
+                                <CheckBox x:Name="DeveloperModeCheck" Content="Enable Developer Mode" IsChecked="{Binding DeveloperModeEnabled}"/>
+                                <TextBlock Text="Developer Mode exposes simulated providers, test hotkeys, calibration, and advanced diagnostics." Foreground="#86868B" TextWrapping="Wrap" Margin="5,4,0,0"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Hotkeys -->
+            <TabItem x:Name="HotkeysTab" Header="Hotkeys">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Keyboard Reference">
+                            <ItemsControl x:Name="HotkeysList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="#EEEEEE" BorderThickness="0,0,0,1" Padding="0,8">
+                                            <DockPanel>
+                                                <TextBlock Text="{Binding Key}" Width="150" FontWeight="Bold" Foreground="#0071E3"/>
+                                                <TextBlock Text="{Binding Description}" VerticalAlignment="Center"/>
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- General -->
+            <TabItem x:Name="GeneralTab" Header="Connection">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Core Provider">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Label Content="Worker Base URL:"/>
+                                    <TextBox x:Name="WorkerBaseUrlBox" Text="{Binding WorkerBaseUrl}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Worker Client Key:"/>
+                                    <PasswordBox x:Name="WorkerClientKeyBox" Height="25" Margin="5" VerticalContentAlignment="Center"/>
+                                </DockPanel>
+                                <WrapPanel Margin="185,5,0,5">
+                                    <Button x:Name="CheckWorkerConnectionBtn" Content="Check Worker" Click="CheckWorkerBtn_Click" Margin="0,0,5,0" Padding="10,5"/>
+                                    <Button x:Name="RunPreflightConnectionBtn" Content="Run Preflight" Click="RunPreflightBtn_Click" Padding="10,5"/>
+                                </WrapPanel>
+                                <DockPanel x:Name="AiProviderRow">
+                                    <Label Content="AI Provider:"/>
+                                    <ComboBox x:Name="AiProviderCombo" SelectedValue="{Binding AiProvider}">
+                                        <ComboBoxItem x:Name="AiFakeItem" Content="Fake"/>
+                                        <ComboBoxItem Content="Claude"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Request Timeout (s):"/>
+                                    <TextBox x:Name="TimeoutBox" Text="{Binding RequestTimeoutSeconds}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="New Interaction:"/>
+                                    <ComboBox x:Name="BehaviorCombo" SelectedValue="{Binding NewInteractionBehavior}">
+                                        <ComboBoxItem Content="CancelPrevious"/>
+                                        <ComboBoxItem Content="IgnoreNew"/>
+                                    </ComboBox>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Lifecycle">
+                            <StackPanel>
+                                <CheckBox x:Name="StartWithWindowsCheck" Content="Start PointyPal with Windows" IsChecked="{Binding StartWithWindows}"/>
+                                <CheckBox x:Name="StartMinimizedCheck" Content="Start minimized to tray" IsChecked="{Binding StartMinimizedToTray}"/>
+                                <CheckBox x:Name="CrashLoggingCheck" Content="Enable crash logging" IsChecked="{Binding CrashLoggingEnabled}"/>
+                                <CheckBox x:Name="AppLoggingCheck" Content="Enable app logging" IsChecked="{Binding AppLoggingEnabled}"/>
+                                <DockPanel>
+                                    <Label Content="Log Level:"/>
+                                    <ComboBox x:Name="LogLevelCombo" SelectedValue="{Binding LogLevel}" SelectedValuePath="Content">
+                                        <ComboBoxItem Content="Error"/>
+                                        <ComboBoxItem Content="Warning"/>
+                                        <ComboBoxItem Content="Info"/>
+                                        <ComboBoxItem Content="Debug"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Log Retention (days):"/>
+                                    <TextBox x:Name="LogRetentionBox" Text="{Binding LogRetentionDays}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox x:Name="DeveloperOptionsGroup" Header="Developer Options">
+                            <StackPanel>
+                                <CheckBox Content="Show developer tray items" IsChecked="{Binding ShowDeveloperTrayItems}"/>
+                                <CheckBox Content="Enable developer hotkeys" IsChecked="{Binding EnableDeveloperHotkeys}"/>
+                                <CheckBox Content="Show advanced diagnostics" IsChecked="{Binding ShowAdvancedDiagnostics}"/>
+                                <CheckBox Content="Allow fake providers in Developer Mode" IsChecked="{Binding AllowFakeProvidersInDeveloperMode}"/>
+                                <CheckBox Content="Allow fake fallback in Normal Mode" IsChecked="{Binding AllowFakeProviderFallbackInNormalMode}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="About">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Build:"/>
+                                    <TextBlock x:Name="AppInfoText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Channel:"/>
+                                    <TextBlock x:Name="AppChannelText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Worker Contract:"/>
+                                    <TextBlock x:Name="WorkerContractText" Text="-" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Started:"/>
+                                    <TextBlock x:Name="AppStartedText" Text="-" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Uptime:"/>
+                                    <TextBlock x:Name="AppUptimeText" Text="-" VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Voice -->
+            <TabItem x:Name="VoiceTab" Header="Voice">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Input (STT)">
+                            <StackPanel>
+                                <CheckBox x:Name="VoiceInputCheck" Content="Enable Voice Input" IsChecked="{Binding VoiceInputEnabled}"/>
+                                <DockPanel x:Name="SttProviderRow">
+                                    <Label Content="STT Provider:"/>
+                                    <ComboBox x:Name="SttProviderCombo" SelectedValue="{Binding TranscriptProvider}">
+                                        <ComboBoxItem x:Name="SttFakeItem" Content="Fake"/>
+                                        <ComboBoxItem Content="Worker"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Language:"/>
+                                    <TextBox x:Name="LangBox" Text="{Binding TranscriptionLanguage}"/>
+                                </DockPanel>
+                                <DockPanel x:Name="FakeTranscriptRow">
+                                    <Label Content="Fake Transcript:"/>
+                                    <TextBox x:Name="FakeTextBox" Text="{Binding FakeTranscriptText}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Min Recording (ms):"/>
+                                    <TextBox x:Name="MinRecBox" Text="{Binding MinRecordingMs}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Max Upload (bytes):"/>
+                                    <TextBox x:Name="MaxUploadBox" Text="{Binding MaxAudioUploadBytes}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Output (TTS)">
+                            <StackPanel>
+                                <CheckBox x:Name="TtsCheck" Content="Enable TTS" IsChecked="{Binding TtsEnabled}"/>
+                                <DockPanel x:Name="TtsProviderRow">
+                                    <Label Content="TTS Provider:"/>
+                                    <ComboBox x:Name="TtsProviderCombo" SelectedValue="{Binding TtsProvider}">
+                                        <ComboBoxItem x:Name="TtsFakeItem" Content="Fake"/>
+                                        <ComboBoxItem Content="Worker"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="ElevenLabs Voice ID:"/>
+                                    <TextBox x:Name="VoiceIdBox" Text="{Binding ElevenLabsVoiceId}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="ElevenLabs Model ID:"/>
+                                    <TextBox x:Name="ModelIdBox" Text="{Binding ElevenLabsModelId}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Output Format:"/>
+                                    <TextBox x:Name="FormatBox" Text="{Binding ElevenLabsOutputFormat}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Max TTS Chars:"/>
+                                    <TextBox x:Name="MaxTtsBox" Text="{Binding MaxTtsChars}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Visual & Behavior -->
+            <TabItem x:Name="VisualTab" Header="Visual">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Behaviors">
+                            <StackPanel>
+                                <CheckBox x:Name="ScreenshotCheck" Content="Enable Screenshots" IsChecked="{Binding ScreenshotEnabled}"/>
+                                <CheckBox x:Name="BubbleCheck" Content="Enable Text Bubbles" IsChecked="{Binding TextBubbleEnabled}"/>
+                                <CheckBox x:Name="FlightCheck" Content="Enable Pointer Flight" IsChecked="{Binding PointerFlightEnabled}"/>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="UI Automation">
+                            <StackPanel>
+                                <CheckBox x:Name="UiAutomationEnabledCheck" Content="Enable UI Automation Context" IsChecked="{Binding UiAutomationEnabled}"/>
+                                <CheckBox x:Name="IncludeUiInPromptCheck" Content="Include UI Context in Prompt" IsChecked="{Binding IncludeUiAutomationInPrompt}"/>
+                                <CheckBox x:Name="SaveUiDebugCheck" Content="Save UI Automation Debug JSON" IsChecked="{Binding SaveUiAutomationDebug}"/>
+                                <DockPanel>
+                                    <Label Content="Search Radius (px):"/>
+                                    <TextBox x:Name="UiRadiusBox" Text="{Binding UiAutomationRadiusPx}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Max Elements in Prompt:"/>
+                                    <TextBox x:Name="MaxUiElementsBox" Text="{Binding MaxUiElementsInPrompt}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Privacy -->
+            <TabItem x:Name="PrivacyTab" Header="Privacy">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Artifacts">
+                            <StackPanel>
+                                <CheckBox x:Name="SaveDebugCheck" Content="Save Debug Artifacts" IsChecked="{Binding SaveDebugArtifacts}"/>
+                                <CheckBox x:Name="AutoDeleteCheck" Content="Auto-delete Old Artifacts" IsChecked="{Binding AutoDeleteDebugArtifacts}"/>
+                                <DockPanel>
+                                    <Label Content="Retention Hours:"/>
+                                    <TextBox x:Name="RetentionBox" Text="{Binding DebugArtifactRetentionHours}"/>
+                                </DockPanel>
+                                <CheckBox x:Name="SaveScreenshotsCheck" Content="Save Screenshots" IsChecked="{Binding SaveScreenshots}"/>
+                                <CheckBox x:Name="SaveRecordingsCheck" Content="Save Audio Recordings" IsChecked="{Binding SaveRecordings}"/>
+                                <CheckBox x:Name="SaveTtsCheck" Content="Save TTS Audio" IsChecked="{Binding SaveTtsAudio}"/>
+                                <CheckBox x:Name="RedactCheck" Content="Redact Debug Payloads" IsChecked="{Binding RedactDebugPayloads}"/>
+                                <Button x:Name="ApplyPrivacyDefaultsBtn" Content="Apply Privacy-Safe Defaults" Click="ApplyPrivacyDefaultsBtn_Click" Margin="0,15,0,0" Padding="15,8"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Limits -->
+            <TabItem x:Name="LimitsTab" Header="Limits">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Daily Quotas">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Label Content="Interactions:"/>
+                                    <TextBox x:Name="LimitInteractionsBox" Text="{Binding DailyInteractionLimit}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Claude Requests:"/>
+                                    <TextBox x:Name="LimitClaudeBox" Text="{Binding DailyClaudeRequestLimit}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="STT Seconds:"/>
+                                    <TextBox x:Name="LimitSttBox" Text="{Binding DailySttSecondsLimit}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="TTS Characters:"/>
+                                    <TextBox x:Name="LimitTtsBox" Text="{Binding DailyTtsCharLimit}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Health -->
+            <TabItem x:Name="HealthTab" Header="Health">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0">
+                        <GroupBox Header="Provider Status">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Worker:"/>
+                                    <TextBlock x:Name="WorkerStatusText" Text="Unknown" VerticalAlignment="Center" FontWeight="Bold"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="AI Provider:"/>
+                                    <TextBlock x:Name="AiStatusText" Text="Unknown" VerticalAlignment="Center" FontWeight="Bold"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Transcript Provider:"/>
+                                    <TextBlock x:Name="SttStatusText" Text="Unknown" VerticalAlignment="Center" FontWeight="Bold"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="TTS Provider:"/>
+                                    <TextBlock x:Name="TtsStatusText" Text="Unknown" VerticalAlignment="Center" FontWeight="Bold"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Last Check:"/>
+                                    <TextBlock x:Name="LastCheckTimeText" Text="-" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <TextBlock x:Name="HealthErrorText" TextWrapping="Wrap" Foreground="#D70015" Margin="5,10,0,0"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                    <WrapPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,10">
+                        <Button x:Name="CheckWorkerBtn" Content="Check Worker" Click="CheckWorkerBtn_Click" Margin="5" Padding="10,5"/>
+                        <Button x:Name="CheckAllBtn" Content="Check All" Click="CheckAllBtn_Click" Margin="5" Padding="10,5"/>
+                        <Button x:Name="TestTtsBtn" Content="Test TTS" Click="TestTtsBtn_Click" Margin="5" Padding="10,5"/>
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Self-Test -->
+            <TabItem x:Name="SelfTestTab" Header="Self-Test">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0">
+                        <GroupBox Header="Offline Simulation Harness">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Last Status:"/>
+                                    <TextBlock x:Name="SelfTestStatusText" Text="Not run" VerticalAlignment="Center" FontWeight="Bold"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Last Run:"/>
+                                    <TextBlock x:Name="SelfTestLastRunText" Text="-" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Duration:"/>
+                                    <TextBlock x:Name="SelfTestDurationText" Text="-" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Scenarios:"/>
+                                    <TextBlock x:Name="SelfTestScenarioCountText" Text="-" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Failed Scenario:"/>
+                                    <TextBlock x:Name="SelfTestFailedScenarioText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Report:"/>
+                                    <TextBlock x:Name="SelfTestReportPathText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                    <WrapPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,10">
+                        <Button x:Name="RunQuickSelfTestBtn" Content="Run Quick Self-Test" Click="RunQuickSelfTestBtn_Click" Margin="5" Padding="10,5"/>
+                        <Button x:Name="RunFullSelfTestBtn" Content="Run Full Self-Test" Click="RunFullSelfTestBtn_Click" Margin="5" Padding="10,5"/>
+                        <Button x:Name="OpenSelfTestReportBtn" Content="Open Test Report" Click="OpenSelfTestReportBtn_Click" Margin="5" Padding="10,5"/>
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Performance -->
+            <TabItem x:Name="PerformanceTab" Header="Performance">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Latest Interaction">
+                            <UniformGrid Columns="2">
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="Total" Foreground="#86868B"/>
+                                    <TextBlock x:Name="LastTotalDurationText" Text="-" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="STT" Foreground="#86868B"/>
+                                    <TextBlock x:Name="LastSttDurationText" Text="-" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="Claude" Foreground="#86868B"/>
+                                    <TextBlock x:Name="LastClaudeDurationText" Text="-" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="TTS" Foreground="#86868B"/>
+                                    <TextBlock x:Name="LastTtsDurationText" Text="-" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="UI Automation" Foreground="#86868B"/>
+                                    <TextBlock x:Name="LastUiaDurationText" Text="-" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="Screenshot" Foreground="#86868B"/>
+                                    <TextBlock x:Name="LastScreenshotDurationText" Text="-" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                            </UniformGrid>
+                        </GroupBox>
+                        <GroupBox Header="Recent Summary">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="P50 / P95 Total:"/>
+                                    <TextBlock VerticalAlignment="Center">
+                                        <Run x:Name="P50DurationText" Text="-"/>
+                                        <Run Text=" / "/>
+                                        <Run x:Name="P95DurationText" Text="-"/>
+                                    </TextBlock>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Slowest Step:"/>
+                                    <TextBlock x:Name="SlowestStepText" Text="-" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Last Reason:"/>
+                                    <TextBlock x:Name="LastTimelineReasonText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Controls">
+                            <StackPanel>
+                                <CheckBox x:Name="TimelineLoggingCheck" Content="Enable Timeline Logging" IsChecked="{Binding EnableTimelineLogging}"/>
+                                <CheckBox x:Name="SaveTimelineHistoryCheck" Content="Save Timeline History" IsChecked="{Binding SaveTimelineHistory}"/>
+                                <CheckBox x:Name="ParallelTtsPointerCheck" Content="Parallel TTS and Pointer Flight" IsChecked="{Binding EnableParallelTtsAndPointerFlight}"/>
+                                <CheckBox x:Name="SkipShortNoPointTtsCheck" Content="Skip TTS for Short No-Point Responses" IsChecked="{Binding SkipTtsForShortNoPointResponses}"/>
+                                <DockPanel>
+                                    <Label Content="Max Timeline Items:"/>
+                                    <TextBox x:Name="MaxTimelineItemsBox" Text="{Binding MaxTimelineHistoryItems}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="UIA Timeout (ms):"/>
+                                    <TextBox x:Name="UiTimeoutBox" Text="{Binding UiAutomationTimeoutMs}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Claude Timeout (s):"/>
+                                    <TextBox x:Name="ClaudeTimeoutBox" Text="{Binding ClaudeRequestTimeoutSeconds}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="STT Timeout (s):"/>
+                                    <TextBox x:Name="TranscriptTimeoutBox" Text="{Binding TranscriptRequestTimeoutSeconds}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="TTS Timeout (s):"/>
+                                    <TextBox x:Name="TtsTimeoutBox" Text="{Binding TtsRequestTimeoutSeconds}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Screenshot Max Width:"/>
+                                    <TextBox x:Name="ScreenshotMaxWidthBox" Text="{Binding ScreenshotMaxWidth}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="JPEG Quality:"/>
+                                    <TextBox x:Name="ScreenshotQualityBox" Text="{Binding ScreenshotJpegQuality}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <WrapPanel HorizontalAlignment="Center" Margin="0,10">
+                            <Button x:Name="OpenLatestTimelineBtn" Content="Open Latest Timeline" Click="OpenLatestTimelineBtn_Click" Margin="5" Padding="10,5"/>
+                            <Button x:Name="OpenTimelineFolderBtn" Content="Open Timeline Folder" Click="OpenTimelineFolderBtn_Click" Margin="5" Padding="10,5"/>
+                            <Button x:Name="ClearTimelineHistoryBtn" Content="Clear Timeline History" Click="ClearTimelineHistoryBtn_Click" Margin="5" Padding="10,5"/>
+                            <Button x:Name="RefreshPerformanceSummaryBtn" Content="Refresh Performance Summary" Click="RefreshPerformanceSummaryBtn_Click" Margin="5" Padding="10,5"/>
+                            <Button x:Name="RunLatencySelfTestBtn" Content="Run Latency Self-Test" Click="RunLatencySelfTestBtn_Click" Margin="5" Padding="10,5"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Logs -->
+            <TabItem x:Name="LogsTab" Header="Logs">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Local Logs">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="App Log:"/>
+                                    <TextBlock x:Name="AppLogPathText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Crash Logs:"/>
+                                    <TextBlock x:Name="CrashLogsFolderText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Last Error:"/>
+                                    <TextBlock x:Name="LastErrorSummaryText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Last Crash:"/>
+                                    <TextBlock x:Name="LastCrashTimestampText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Latest Crash File:"/>
+                                    <TextBlock x:Name="LatestCrashLogPathText" Text="-" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <WrapPanel Margin="0,10,0,0">
+                                    <Button x:Name="OpenLogsFolderBtn" Content="Open Logs Folder" Click="OpenLogsFolderBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="OpenLatestLogBtn" Content="Open Latest Log" Click="OpenLatestLogBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="OpenLatestCrashBtn" Content="Open Latest Crash Log" Click="OpenLatestCrashBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="ClearLogsBtn" Content="Clear Logs" Click="ClearLogsBtn_Click" Margin="5" Padding="10,5"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Usage -->
+            <TabItem x:Name="UsageTab" Header="Usage">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0">
+                        <GroupBox Header="Today's Dashboard">
+                            <UniformGrid Columns="2">
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="Interactions" Foreground="#86868B"/>
+                                    <TextBlock x:Name="UsageInteractionsText" Text="0 / 0" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="Claude Requests" Foreground="#86868B"/>
+                                    <TextBlock x:Name="UsageClaudeText" Text="0 / 0" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="STT Seconds" Foreground="#86868B"/>
+                                    <TextBlock x:Name="UsageSttText" Text="0 / 0" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Margin="10">
+                                    <TextBlock Text="TTS Characters" Foreground="#86868B"/>
+                                    <TextBlock x:Name="UsageTtsText" Text="0 / 0" FontSize="20" FontWeight="Bold"/>
+                                </StackPanel>
+                            </UniformGrid>
+                        </GroupBox>
+                    </StackPanel>
+                    <WrapPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,10">
+                        <Button x:Name="ResetUsageBtn" Content="Reset Today Usage" Click="ResetUsageBtn_Click" Margin="5" Padding="10,5"/>
+                        <Button x:Name="OpenUsageFileBtn" Content="Open usage.json" Click="OpenUsageFileBtn_Click" Margin="5" Padding="10,5"/>
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Pointing -->
+            <TabItem x:Name="PointingTab" Header="Pointing">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Point Snapping">
+                            <StackPanel>
+                                <CheckBox x:Name="SnappingCheck" Content="Enable Point Snapping (UIA assisted)" IsChecked="{Binding PointSnappingEnabled}"/>
+                                <CheckBox x:Name="PreferButtonsCheck" Content="Prefer Buttons/Menus when snapping" IsChecked="{Binding PointSnappingPreferButtons}"/>
+                                <DockPanel>
+                                    <Label Content="Max Snap Distance (px):"/>
+                                    <TextBox x:Name="SnapDistBox" Text="{Binding PointSnappingMaxDistancePx}"/>
+                                </DockPanel>
+                                <TextBlock Text="* Snapping adjusts the AI point to the center of the nearest UI element." Foreground="#86868B" FontSize="11" Margin="5,5,0,0"/>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Calibration &amp; Diagnostics">
+                            <StackPanel>
+                                <CheckBox x:Name="CalGridCheck" Content="Show Calibration Grid (Ctrl+Shift+F9)" IsChecked="{Binding ShowCalibrationGrid}"/>
+                                <WrapPanel Margin="0,10,0,0">
+                                    <Button x:Name="OpenLatestPointBtn" Content="Open Latest Attempt" Click="OpenLatestPointBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="OpenFeedbackBtn" Content="Open Feedback Log" Click="OpenFeedbackBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="ReplayLastBtn" Content="Replay Last Point" Click="ReplayLastBtn_Click" Margin="5" Padding="10,5"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Interaction -->
+            <TabItem x:Name="InteractionsTab" Header="Interactions">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Interaction Modes">
+                            <StackPanel>
+                                <DockPanel>
+                                    <Label Content="Default Mode:"/>
+                                    <ComboBox x:Name="DefaultModeCombo" SelectedValue="{Binding DefaultInteractionMode}">
+                                        <ComboBoxItem Content="Assist"/>
+                                        <ComboBoxItem Content="Point"/>
+                                        <ComboBoxItem Content="Explain"/>
+                                        <ComboBoxItem Content="Summarize"/>
+                                        <ComboBoxItem Content="ReadScreen"/>
+                                        <ComboBoxItem Content="Debug"/>
+                                        <ComboBoxItem Content="Translate"/>
+                                        <ComboBoxItem Content="NoPoint"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Voice Mode:"/>
+                                    <ComboBox x:Name="VoiceModeCombo" SelectedValue="{Binding VoiceInteractionMode}">
+                                        <ComboBoxItem Content="Assist"/>
+                                        <ComboBoxItem Content="Point"/>
+                                        <ComboBoxItem Content="Explain"/>
+                                        <ComboBoxItem Content="Summarize"/>
+                                        <ComboBoxItem Content="ReadScreen"/>
+                                        <ComboBoxItem Content="Debug"/>
+                                        <ComboBoxItem Content="Translate"/>
+                                        <ComboBoxItem Content="NoPoint"/>
+                                    </ComboBox>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Quick Ask Default:"/>
+                                    <ComboBox x:Name="QuickAskModeCombo" SelectedValue="{Binding QuickAskDefaultMode}">
+                                        <ComboBoxItem Content="Assist"/>
+                                        <ComboBoxItem Content="Point"/>
+                                        <ComboBoxItem Content="Explain"/>
+                                        <ComboBoxItem Content="Summarize"/>
+                                        <ComboBoxItem Content="ReadScreen"/>
+                                        <ComboBoxItem Content="Debug"/>
+                                        <ComboBoxItem Content="Translate"/>
+                                        <ComboBoxItem Content="NoPoint"/>
+                                    </ComboBox>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Interaction History">
+                            <StackPanel>
+                                <CheckBox x:Name="SaveHistoryCheck" Content="Save Interaction History" IsChecked="{Binding SaveInteractionHistory}"/>
+                                <DockPanel>
+                                    <Label Content="Retention (days):"/>
+                                    <TextBox x:Name="HistoryRetentionBox" Text="{Binding InteractionHistoryRetentionDays}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Max History Items:"/>
+                                    <TextBox x:Name="MaxHistoryBox" Text="{Binding MaxInteractionHistoryItems}"/>
+                                </DockPanel>
+                                <WrapPanel Margin="0,10,0,0">
+                                    <Button x:Name="OpenHistoryBtn" Content="Open History Folder" Click="OpenHistoryBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="ClearHistoryBtn" Content="Clear Interaction History" Click="ClearInteractionHistoryBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="OpenQuickAskBtn" Content="Open Quick Ask" Click="OpenQuickAskBtn_Click" Margin="5" Padding="10,5"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Resilience -->
+            <TabItem x:Name="ResilienceTab" Header="Resilience">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Health Status">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Overall Status:"/>
+                                    <TextBlock x:Name="ResilienceStatusText" Text="Healthy" VerticalAlignment="Center" FontWeight="Bold" FontSize="16"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Consecutive Failures:"/>
+                                    <TextBlock x:Name="ResilienceFailuresText" Text="0" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Fallback Active:"/>
+                                    <TextBlock x:Name="ResilienceFallbackText" Text="No" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Microphone Status:"/>
+                                    <TextBlock x:Name="ResilienceMicText" Text="Available" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Display Count:"/>
+                                    <TextBlock x:Name="ResilienceDisplayText" Text="1" VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Resource Usage">
+                            <StackPanel>
+                                <UniformGrid Columns="3">
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Memory (WS)" Foreground="#86868B"/>
+                                        <TextBlock x:Name="ResilienceMemoryText" Text="0 MB" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="CPU Usage" Foreground="#86868B"/>
+                                        <TextBlock x:Name="ResilienceCpuText" Text="0%" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Uptime" Foreground="#86868B"/>
+                                        <TextBlock x:Name="ResilienceUptimeText" Text="00:00:00" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Handles" Foreground="#86868B"/>
+                                        <TextBlock x:Name="ResilienceHandlesText" Text="0" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Threads" Foreground="#86868B"/>
+                                        <TextBlock x:Name="ResilienceThreadsText" Text="0" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="GDI / USER" Foreground="#86868B"/>
+                                        <TextBlock x:Name="ResilienceGdiUserText" Text="0 / 0" FontSize="20" FontWeight="Bold"/>
+                                    </StackPanel>
+                                </UniformGrid>
+                                <StackPanel Margin="10,0" x:Name="ResourceWarningPanel" Visibility="Collapsed">
+                                    <TextBlock Text="⚠️ RESOURCE WARNING" Foreground="#D70015" FontWeight="Bold"/>
+                                    <TextBlock x:Name="ResourceWarningText" Text="-" Foreground="#D70015" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="ResourceWarningTimeText" Text="-" Foreground="#86868B" FontSize="11"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Settings">
+                            <StackPanel>
+                                <CheckBox x:Name="EnableFallbackCheck" Content="Enable Provider Fallback" IsChecked="{Binding EnableProviderFallback}"/>
+                                <CheckBox x:Name="FallbackToFakeCheck" Content="Fallback to Fake on Worker failure" IsChecked="{Binding FallbackToFakeOnWorkerFailure}"/>
+                                <DockPanel>
+                                    <Label Content="Failure Threshold:"/>
+                                    <TextBox x:Name="FailureThresholdBox" Text="{Binding ProviderFailureThreshold}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Failure Cooldown (s):"/>
+                                    <TextBox x:Name="FailureCooldownBox" Text="{Binding ProviderFailureCooldownSeconds}"/>
+                                </DockPanel>
+                                <CheckBox x:Name="AutoRefreshDisplayCheck" Content="Auto Refresh Overlay on Display Change" IsChecked="{Binding AutoRefreshOverlayOnDisplayChange}"/>
+                                <CheckBox x:Name="EnableResourceMonCheck" Content="Enable Resource Monitoring" IsChecked="{Binding EnableResourceMonitoring}"/>
+                                <DockPanel>
+                                    <Label Content="Mon Interval (s):"/>
+                                    <TextBox x:Name="MonIntervalBox" Text="{Binding ResourceMonitoringIntervalSeconds}"/>
+                                </DockPanel>
+                                <DockPanel>
+                                    <Label Content="Memory Warning (MB):"/>
+                                    <TextBox x:Name="MemWarningBox" Text="{Binding MemoryWarningThresholdMb}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Offline Soak Test">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Duration (min):"/>
+                                    <TextBox x:Name="SoakDurationBox" Text="10"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Interval (ms):"/>
+                                    <TextBox x:Name="SoakIntervalBox" Text="1000"/>
+                                </DockPanel>
+                                <WrapPanel HorizontalAlignment="Center" Margin="0,10">
+                                    <Button x:Name="RunSoakTestBtn" Content="Run Offline Soak Test" Click="RunSoakTestBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="OpenSoakReportBtn" Content="Open Soak Report" Click="OpenSoakReportBtn_Click" Margin="5" Padding="10,5"/>
+                                </WrapPanel>
+                                <TextBlock x:Name="SoakStatusText" Text="Ready" HorizontalAlignment="Center" Foreground="#86868B"/>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Actions">
+                            <WrapPanel HorizontalAlignment="Center">
+                                <Button x:Name="RunHealthRefreshBtn" Content="Run Health Refresh" Click="CheckAllBtn_Click" Margin="5" Padding="10,5"/>
+                                <Button x:Name="ForceWorkerHealthBtn" Content="Force Worker Health Check" Click="CheckWorkerBtn_Click" Margin="5" Padding="10,5"/>
+                                <Button x:Name="ClearResilienceEventsBtn" Content="Clear Resilience Events" Click="ClearResilienceEventsBtn_Click" Margin="5" Padding="10,5"/>
+                                <Button x:Name="ResetProviderFailuresBtn" Content="Reset Provider Failure Count" Click="ResetProviderFailuresBtn_Click" Margin="5" Padding="10,5"/>
+                            </WrapPanel>
+                        </GroupBox>
+                        <GroupBox Header="Recent Resilience Events">
+                            <ListView x:Name="ResilienceEventsList" Height="200">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Time" DisplayMemberBinding="{Binding Timestamp, StringFormat='HH:mm:ss'}" Width="80"/>
+                                        <GridViewColumn Header="Cat" DisplayMemberBinding="{Binding Category}" Width="70"/>
+                                        <GridViewColumn Header="Sev" DisplayMemberBinding="{Binding Severity}" Width="60"/>
+                                        <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Message}" Width="300"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Release / Preflight -->
+            <TabItem x:Name="ReleaseTab" Header="Release">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <GroupBox Grid.Row="0" Header="RC Readiness Score">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                            <TextBlock x:Name="ReadinessScoreText" Text="0" FontSize="48" FontWeight="Bold" Foreground="#0071E3" Margin="0,0,20,0"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="ReadinessStatusText" Text="NOT READY" FontSize="20" FontWeight="Bold" Foreground="#D70015"/>
+                                <TextBlock x:Name="ReadinessTimeText" Text="Last checked: -" Foreground="#86868B"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Grid.Row="1" Header="Readiness Issues &amp; Warnings">
+                        <StackPanel>
+                            <ItemsControl x:Name="ReadinessIssuesList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Foreground="#D70015" Margin="0,2" TextWrapping="Wrap">
+                                            <Run Text="❌ "/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <ItemsControl x:Name="ReadinessWarningsList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Foreground="#856404" Margin="0,2" TextWrapping="Wrap">
+                                            <Run Text="⚠️ "/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Grid.Row="2" Header="Recommended Actions">
+                        <ItemsControl x:Name="ReadinessActionsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Margin="0,2" TextWrapping="Wrap">
+                                        <Run Text="👉 "/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </GroupBox>
+
+                    <WrapPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,10">
+                        <Button x:Name="RunReadinessBtn" Content="Run RC Readiness Check" Click="RunReadinessBtn_Click" Margin="5" Padding="15,8" Background="#0071E3" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+                        <Button x:Name="RunFullValidationBtn" Content="Run Full RC Validation" Click="RunFullValidationBtn_Click" Margin="5" Padding="15,8" Background="#34C759" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+                        <Button x:Name="ExportReadinessBtn" Content="Export RC Readiness Report" Click="ExportReadinessBtn_Click" Margin="5" Padding="10,5"/>
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+            
+            <!-- Legacy Preflight (Optional) -->
+            <TabItem x:Name="PreflightDetailsTab" Header="Preflight Details">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Grid.Row="0" Header="Raw Preflight Status">
+                        <StackPanel>
+                            <DockPanel Margin="0,5">
+                                <Label Content="Overall Status:"/>
+                                <TextBlock x:Name="PreflightOverallStatusText" Text="Not run" VerticalAlignment="Center" FontWeight="Bold" FontSize="16"/>
+                            </DockPanel>
+                            <DockPanel Margin="0,5">
+                                <Label Content="Last Run:"/>
+                                <TextBlock x:Name="PreflightLastRunText" Text="-" VerticalAlignment="Center"/>
+                            </DockPanel>
+                            <DockPanel Margin="0,5">
+                                <Label Content="Duration:"/>
+                                <TextBlock x:Name="PreflightDurationText" Text="-" VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <ListView Grid.Row="1" x:Name="PreflightResultsList" Margin="0,10">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Check" DisplayMemberBinding="{Binding Name}" Width="150"/>
+                                <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}" Width="80"/>
+                                <GridViewColumn Header="Message" DisplayMemberBinding="{Binding Message}" Width="400"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <WrapPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,10">
+                        <Button x:Name="RunPreflightBtn" Content="Run Preflight Check" Click="RunPreflightBtn_Click" Margin="5" Padding="10,5"/>
+                        <Button x:Name="ExportPreflightBtn" Content="Export Report" Click="ExportPreflightBtn_Click" Margin="5" Padding="10,5"/>
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Recovery -->
+            <TabItem x:Name="RecoveryTab" Header="Recovery">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+                    <StackPanel>
+                        <GroupBox Header="Config Backups">
+                            <StackPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Backup Count:"/>
+                                    <TextBlock x:Name="BackupCountText" Text="0" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="0,5">
+                                    <Label Content="Latest Backup:"/>
+                                    <TextBlock x:Name="LatestBackupText" Text="None" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </DockPanel>
+                                <WrapPanel Margin="0,10,0,0">
+                                    <Button x:Name="BackupNowBtn" Content="Backup Config Now" Click="BackupNowBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="RestoreLatestBtn" Content="Restore Latest Backup" Click="RestoreLatestBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="OpenBackupsFolderBtn" Content="Open Backups Folder" Click="OpenBackupsFolderBtn_Click" Margin="5" Padding="10,5"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Local Data Cleanup">
+                            <StackPanel>
+                                <WrapPanel>
+                                    <Button x:Name="ClearDebugFilesBtn" Content="Clear Debug Files" Click="ClearDebugFilesBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="ClearInteractionHistoryBtn" Content="Clear Interaction History" Click="ClearInteractionHistoryBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="ClearUsageDataBtn" Content="Clear Usage Data" Click="ClearUsageDataBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="ClearTimelineHistoryBtn2" Content="Clear Timeline History" Click="ClearTimelineHistoryBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="ClearPointingFeedbackBtn" Content="Clear Pointing Feedback" Click="ClearPointingFeedbackBtn_Click" Margin="5" Padding="10,5"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Config Export/Import">
+                            <StackPanel>
+                                <WrapPanel>
+                                    <Button x:Name="ExportBundleBtn" Content="Export Config Bundle" Click="ExportBundleBtn_Click" Margin="5" Padding="10,5"/>
+                                    <Button x:Name="ImportBundleBtn" Content="Import Config Bundle" Click="ImportBundleBtn_Click" Margin="5" Padding="10,5"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Factory Reset" BorderBrush="#D70015">
+                            <StackPanel>
+                                <TextBlock Text="Clears all logs, history, usage, and resets configuration to defaults." Foreground="#D70015" TextWrapping="Wrap" Margin="5,0,0,10"/>
+                                <Button x:Name="FactoryResetBtn" Content="Factory Reset Local State" Click="FactoryResetBtn_Click" Margin="5" Padding="20,8" Background="#D70015" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- Footer Buttons -->
+        <Border Grid.Row="2" Background="#FFFFFF" Padding="15" CornerRadius="8" Effect="{StaticResource PremiumShadow}">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="ResetBtn" Content="Reset to Defaults" Click="ResetBtn_Click" Margin="0,0,10,0" Padding="10,5"/>
+                    <Button x:Name="ReloadBtn" Content="Reload" Click="ReloadBtn_Click" Margin="0,0,10,0" Padding="10,5"/>
+                    <Button x:Name="OpenReleaseGuideBtn" Content="Release Guide" Click="OpenDoc_Click" Tag="docs/local-release.md" Margin="0,0,5,0" Padding="8,4"/>
+                    <Button x:Name="OpenRecoveryGuideBtn" Content="Recovery Guide" Click="OpenDoc_Click" Tag="docs/recovery.md" Margin="0,0,5,0" Padding="8,4"/>
+                    <Button x:Name="OpenRcChecklistBtn" Content="RC Checklist" Click="OpenDoc_Click" Tag="docs/rc-checklist.md" Margin="0,0,5,0" Padding="8,4"/>
+                    <TextBlock Text="* Some settings may require restart" VerticalAlignment="Center" Foreground="#86868B" FontSize="10" Margin="10,0,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="OpenConfigBtn" Content="Open Config File" Click="OpenConfigBtn_Click" Margin="0,0,10,0" Padding="10,5"/>
+                    <Button x:Name="OpenDebugBtn" Content="Open Debug Folder" Click="OpenDebugBtn_Click" Margin="0,0,10,0" Padding="10,5"/>
+                    <Button x:Name="SaveBtn" Content="Save Settings" Click="SaveBtn_Click" Padding="20,5" Background="#0071E3" Foreground="White" BorderThickness="0"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
