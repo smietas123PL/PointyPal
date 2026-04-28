@@ -47,3 +47,9 @@ secrets/
 node_modules/
 .wrangler/
 dist/
+
+# Reference and temporary assets
+UI.zip
+Temp/
+v2_reference/
+test_output.txt
