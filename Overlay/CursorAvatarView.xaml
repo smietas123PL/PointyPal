@@ -11,9 +11,9 @@
     </UserControl.Resources>
     
     <Grid>
-        <Ellipse x:Name="AvatarCore" Width="20" Height="20" Fill="#FF4DD0E1">
+        <Ellipse x:Name="AvatarCore" Width="20" Height="20" Fill="#4DD0E1">
             <Ellipse.Effect>
-                <DropShadowEffect x:Name="GlowEffect" Color="#FF00BCD4" BlurRadius="15" ShadowDepth="0" />
+                <DropShadowEffect x:Name="GlowEffect" Color="#00BCD4" BlurRadius="15" ShadowDepth="0" />
             </Ellipse.Effect>
         </Ellipse>
     </Grid>

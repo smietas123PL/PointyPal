@@ -17,6 +17,7 @@ public class InteractionHistoryServiceTests : IDisposable
     {
         _tempPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".jsonl");
         _configService = new ConfigService();
+        _configService.Config.SaveInteractionHistory = true;
         _service = new InteractionHistoryService(_configService, _tempPath);
     }
 

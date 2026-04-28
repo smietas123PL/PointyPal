@@ -258,4 +258,10 @@ public class PerformanceSummaryService
             DebugLogger.LogStatic($"Performance summary save failed: {ex.Message}");
         }
     }
+    public async System.Threading.Tasks.Task RunLatencyBenchmarkAsync()
+    {
+        var harness = new InteractionSimulationHarness(_configService);
+        var result = await harness.RunLatencySelfTestAsync(new InteractionTimelineService(_configService), this);
+        RefreshSummary();
+    }
 }

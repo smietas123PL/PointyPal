@@ -4,6 +4,17 @@
              xmlns:local="clr-namespace:PointyPal"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="UI/Styles/ThemeTokens.xaml"/>
+                <ResourceDictionary Source="UI/Styles/Brushes.xaml"/>
+                <ResourceDictionary Source="UI/Styles/Typography.xaml"/>
+                <ResourceDictionary Source="UI/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="UI/Styles/CardStyles.xaml"/>
+                <ResourceDictionary Source="UI/Styles/NavigationStyles.xaml"/>
+                <ResourceDictionary Source="UI/Styles/ControlCenterStyles.xaml"/>
+                <ResourceDictionary Source="UI/Styles/QuickAskStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

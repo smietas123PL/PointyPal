@@ -10,14 +10,65 @@
         Focusable="False"
         WindowState="Maximized">
     <Grid Name="MainGrid">
-        <Canvas Name="GridCanvas" IsHitTestVisible="False" Opacity="0.6">
+        <Canvas Name="GridCanvas" IsHitTestVisible="False" Opacity="0.4">
             <!-- Grid lines will be drawn here -->
         </Canvas>
+
+        <!-- Interactive Control Panel (Only visible in Developer Mode if requested) -->
+        <Border Name="DevControlPanel" CornerRadius="12" Padding="20" Width="300" 
+                VerticalAlignment="Center" HorizontalAlignment="Right" Margin="40" Visibility="Collapsed" BorderThickness="2">
+            <Border.Background>
+                <SolidColorBrush Color="#1E1E1E" Opacity="0.93"/>
+            </Border.Background>
+            <Border.BorderBrush>
+                <SolidColorBrush Color="#4DD0E1"/>
+            </Border.BorderBrush>
+            <StackPanel>
+                <TextBlock Text="POINTER CALIBRATION 2.0" FontWeight="Bold" FontSize="18" Margin="0,0,0,10">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="#4DD0E1"/>
+                    </TextBlock.Foreground>
+                </TextBlock>
+                
+                <TextBlock Name="MonitorInfoText" Text="Monitor: 1 (2560x1440)" Foreground="#AAAAAA" Margin="0,0,0,5" />
+                <TextBlock Name="DpiInfoText" Text="DPI Scale: 1.25 (120 DPI)" Foreground="#AAAAAA" Margin="0,0,0,15" />
+
+                <TextBlock Text="Test Points" Foreground="White" FontWeight="SemiBold" Margin="0,0,0,10" />
+                <UniformGrid Columns="2" Margin="0,0,0,15">
+                    <Button Content="Top Left" Click="OnTestPointClick" Tag="TopLeft" Margin="2" Padding="5" Background="#333333" Foreground="White"/>
+                    <Button Content="Top Right" Click="OnTestPointClick" Tag="TopRight" Margin="2" Padding="5" Background="#333333" Foreground="White"/>
+                    <Button Content="Bottom Left" Click="OnTestPointClick" Tag="BottomLeft" Margin="2" Padding="5" Background="#333333" Foreground="White"/>
+                    <Button Content="Bottom Right" Click="OnTestPointClick" Tag="BottomRight" Margin="2" Padding="5" Background="#333333" Foreground="White"/>
+                    <Button Content="Center" Click="OnTestPointClick" Tag="Center" Margin="2" Padding="5" Background="#333333" Foreground="White" Grid.ColumnSpan="2"/>
+                </UniformGrid>
+
+                <Button Content="Run Pointer Calibration Test" Click="OnRunCalibrationTest" Height="40" Foreground="Black" FontWeight="Bold">
+                    <Button.Background>
+                        <SolidColorBrush Color="#4DD0E1"/>
+                    </Button.Background>
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="4"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
+                <TextBlock Text="The ring should land exactly on the marked location." FontSize="11" Margin="0,15,0,0" TextWrapping="Wrap" TextAlignment="Center">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="#FFFFFF" Opacity="0.53"/>
+                    </TextBlock.Foreground>
+                </TextBlock>
+                <Button Content="Close Calibration" Click="OnCloseClick" Margin="0,15,0,0" Background="Transparent" Foreground="#FF5555" BorderThickness="0" />
+            </StackPanel>
+        </Border>
         
-        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="20" IsHitTestVisible="False">
-            <Border Background="#CC000000" CornerRadius="8" Padding="15">
+        <StackPanel Name="InfoPanel" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="20" IsHitTestVisible="False">
+            <Border CornerRadius="8" Padding="15">
+                <Border.Background>
+                    <SolidColorBrush Color="#000000" Opacity="0.80"/>
+                </Border.Background>
                 <StackPanel>
-                    <TextBlock Text="CALIBRATION MODE" Foreground="#FFFFD700" FontWeight="Bold" FontSize="16" Margin="0,0,0,5" />
+                    <TextBlock Text="CALIBRATION MODE" Foreground="#FFD700" FontWeight="Bold" FontSize="16" Margin="0,0,0,5" />
                     <TextBlock Name="ScreenCoordsText" Text="Screen: 0, 0" Foreground="White" FontFamily="Consolas" />
                     <TextBlock Name="ImageCoordsText" Text="Image: 0, 0" Foreground="#00FF00" FontFamily="Consolas" />
                     <TextBlock Text="Press ESC or Ctrl+Shift+F9 to exit" Foreground="#AAAAAA" FontSize="11" Margin="0,5,0,0" />

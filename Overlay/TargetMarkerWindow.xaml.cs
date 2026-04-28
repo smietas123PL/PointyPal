@@ -8,11 +8,13 @@ namespace PointyPal.Overlay;
 
 public partial class TargetMarkerWindow : Window
 {
+    private readonly ConfigService? _configService;
     private Storyboard? _pulseAnimation;
 
-    public TargetMarkerWindow()
+    public TargetMarkerWindow(ConfigService? configService = null)
     {
         InitializeComponent();
+        _configService = configService;
         _pulseAnimation = (Storyboard)Resources["PulseAnimation"];
     }
 
@@ -27,10 +29,23 @@ public partial class TargetMarkerWindow : Window
             NativeMethods.WS_EX_NOACTIVATE);
     }
 
-    public void ShowAt(double x, double y)
+    public void ShowAt(double x, double y, string label)
     {
-        Left = x - (Width / 2);
-        Top = y - (Height / 2);
+        // Center the 200x150 window on the target
+        Left = x - 100;
+        Top = y - 75;
+
+        if (string.IsNullOrEmpty(label))
+        {
+            LabelBubble.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            LabelBubble.Visibility = Visibility.Visible;
+            int maxLength = _configService?.Config.PointerLabelMaxLength ?? 40;
+            LabelText.Text = label.Length > maxLength ? label.Substring(0, maxLength - 3) + "..." : label;
+        }
+
         Show();
         _pulseAnimation?.Begin();
     }

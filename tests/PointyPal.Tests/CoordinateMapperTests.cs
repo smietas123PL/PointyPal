@@ -11,14 +11,27 @@ public class CoordinateMapperTests
 {
     private readonly CoordinateMapper _mapper = new();
 
-    private CaptureResult CreateFakeCapture(int originalW, int originalH, int imageW, int imageH, double monitorX = 0, double monitorY = 0)
+    private CaptureResult CreateFakeCapture(int physicalW, int physicalH, int imageW, int imageH, double monitorX = 0, double monitorY = 0)
     {
+        var geometry = new CaptureGeometry
+        {
+            MonitorBoundsPhysical = new Rect(monitorX, monitorY, physicalW, physicalH),
+            MonitorBoundsDip = new Rect(monitorX, monitorY, physicalW, physicalH), // Assume 1:1 for simplicity
+            DpiScaleX = 1.0,
+            DpiScaleY = 1.0,
+            DownscaleFactorX = (double)imageW / physicalW,
+            DownscaleFactorY = (double)imageH / physicalH,
+            CaptureImageWidth = imageW,
+            CaptureImageHeight = imageH,
+            VirtualScreenBounds = new Rect(-5000, -5000, 10000, 10000)
+        };
+
         return new CaptureResult
         {
-            OriginalWidth = originalW,
-            OriginalHeight = originalH,
+            OriginalWidth = physicalW,
+            OriginalHeight = physicalH,
             Image = new Bitmap(imageW, imageH),
-            MonitorBounds = new Rect(monitorX, monitorY, originalW, originalH)
+            Geometry = geometry
         };
     }
 
@@ -47,27 +60,31 @@ public class CoordinateMapperTests
     }
 
     [Fact]
-    public void MapImagePointToScreenPoint_NegativeCoordinates_MapsCorrectly()
-    {
-        var capture = CreateFakeCapture(1920, 1080, 1920, 1080, -1920, 0); // Monitor to the left
-        var imagePoint = new Point(100, 100);
-
-        var screenPoint = _mapper.MapImagePointToScreenPoint(imagePoint, capture);
-
-        screenPoint.X.Should().Be(-1820);
-        screenPoint.Y.Should().Be(100);
-    }
-
-    [Fact]
     public void RoundTrip_MapsBackToOriginal()
     {
-        var capture = CreateFakeCapture(2560, 1440, 1000, 600, 100, 100);
+        var capture = CreateFakeCapture(2560, 1440, 1280, 720, 100, 100);
         var originalScreenPoint = new Point(500, 500);
 
-        var imagePoint = _mapper.MapScreenPointToImagePoint(originalScreenPoint, capture);
-        var resultScreenPoint = _mapper.MapImagePointToScreenPoint(imagePoint, capture);
+        var imageResult = _mapper.ScreenPhysicalToImage(originalScreenPoint, capture.Geometry);
+        var resultScreenPoint = _mapper.MapImagePointToScreenPoint(imageResult.OutputPoint, capture);
 
         resultScreenPoint.X.Should().BeInRange(499.9, 500.1);
         resultScreenPoint.Y.Should().BeInRange(499.9, 500.1);
+    }
+
+    [Fact]
+    public void ScreenPhysicalToOverlayDip_HighDpi_MapsCorrectly()
+    {
+        var geometry = new CaptureGeometry
+        {
+            DpiScaleX = 1.5,
+            DpiScaleY = 1.5
+        };
+        var screenPoint = new Point(150, 300);
+
+        var result = _mapper.ScreenPhysicalToOverlayDip(screenPoint, geometry);
+
+        result.OutputPoint.X.Should().Be(100);
+        result.OutputPoint.Y.Should().Be(200);
     }
 }

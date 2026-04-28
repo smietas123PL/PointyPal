@@ -17,6 +17,8 @@ public class ConfigService
     public bool SafeModeActive { get; private set; }
     public string SafeModeReason { get; private set; } = "";
 
+    public event EventHandler<AppConfig>? ConfigChanged;
+
     public ConfigService() : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PointyPal", "config.json"))
     {
     }
@@ -102,6 +104,7 @@ public class ConfigService
             File.WriteAllText(_configPath, json);
             LastSaveTime = DateTime.Now;
             _appLog?.Info("ConfigSaved", $"Path={_configPath}");
+            ConfigChanged?.Invoke(this, _config);
         }
         catch (Exception ex)
         {
@@ -113,6 +116,7 @@ public class ConfigService
     public void ReloadConfig()
     {
         _config = LoadConfig();
+        ConfigChanged?.Invoke(this, _config);
     }
 
     public void ResetToDefaults()
@@ -151,5 +155,23 @@ public class ConfigService
         }
 
         ResetToDefaults();
+    }
+    public void FactoryReset()
+    {
+        FactoryResetLocalState();
+    }
+
+    public void OpenConfigInEditor()
+    {
+        if (File.Exists(_configPath))
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(_configPath) { UseShellExecute = true });
+        }
+    }
+
+    public void ExitSafeModeOnNextLaunch()
+    {
+        _config.ForceSafeMode = false;
+        SaveConfig(_config);
     }
 }

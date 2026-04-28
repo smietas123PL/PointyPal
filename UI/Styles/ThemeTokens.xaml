@@ -1,0 +1,22 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- Color Tokens from Landing Page -->
+    <Color x:Key="DeepCharcoalColor">#0F1116</Color>
+    <Color x:Key="DarkGraphiteColor">#1A1D23</Color>
+    <Color x:Key="SurfaceLighterColor">#202631</Color>
+    <Color x:Key="SurfaceDeepColor">#12161D</Color>
+    
+    <Color x:Key="SoftCyanColor">#22D3EE</Color>
+    <Color x:Key="VioletAccentColor">#6366F1</Color>
+    
+    <Color x:Key="WarmWhiteColor">#F4F4FF</Color>
+    <Color x:Key="MutedBlueGrayColor">#9EA6B8</Color>
+    <Color x:Key="TextSecondaryColor">#E8E8FF</Color>
+    
+    <Color x:Key="SuccessGreenColor">#34C759</Color>
+    <Color x:Key="WarningOrangeColor">#FF9500</Color>
+    <Color x:Key="ErrorRedColor">#FF3B30</Color>
+    <Color x:Key="WhiteColor">#FFFFFF</Color>
+
+</ResourceDictionary>

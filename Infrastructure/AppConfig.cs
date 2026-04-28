@@ -66,8 +66,24 @@ public class AppConfig
     public bool PointSnappingEnabled { get; set; } = false;
     public int PointSnappingMaxDistancePx { get; set; } = 80;
     public bool PointSnappingPreferButtons { get; set; } = true;
+    public bool PointSnappingSnapToElementCenter { get; set; } = true;
+    public string[] PointSnappingUsefulControlTypes { get; set; } = new[] 
+    { 
+        "Button", "Edit", "ComboBox", "MenuItem", "TabItem", "CheckBox", "RadioButton", "Hyperlink", "ListItem" 
+    };
+
     public bool ShowCalibrationGrid { get; set; } = false;
     public bool ShowPointAccuracyDiagnostics { get; set; } = false;
+
+    // PT011: Pointer Accuracy Polish
+    public bool PointerMarkerEnabled { get; set; } = true;
+    public int PointerMarkerDurationMs { get; set; } = 1400;
+    public int PointerFlightDurationMs { get; set; } = 450;
+    public int PointerReturnDurationMs { get; set; } = 350;
+    public int PointerTargetOffsetPx { get; set; } = 18;
+    public int PointerLabelMaxLength { get; set; } = 40;
+    public bool PointerFeedbackPromptEnabled { get; set; } = false;
+    public bool PointerFeedbackPromptDeveloperOnly { get; set; } = true;
 
     // Build014: Interaction modes
     public Core.InteractionMode DefaultInteractionMode { get; set; } = Core.InteractionMode.Assist;
@@ -135,4 +151,16 @@ public class AppConfig
     public bool ShowAdvancedDiagnostics { get; set; } = false;
     public bool AllowFakeProvidersInDeveloperMode { get; set; } = true;
     public bool AllowFakeProviderFallbackInNormalMode { get; set; } = false;
+
+    // PT013: Pointer Overlay v2
+    public string PointerVisualStyle { get; set; } = "TriangleV2";
+    public bool PointerAuraEnabled { get; set; } = true;
+    public bool PointerStatusSlotEnabled { get; set; } = true;
+
+    // PT013: Pointer Scale Hotfix
+    public double PointerVisualSizeDip { get; set; } = 22;
+    public double PointerVisualMinSizeDip { get; set; } = 18;
+    public double PointerVisualMaxSizeDip { get; set; } = 36;
+    public double PointerVisualGlowScale { get; set; } = 1.10;
+    public double PointerStatusSlotScale { get; set; } = 1.15;
 }

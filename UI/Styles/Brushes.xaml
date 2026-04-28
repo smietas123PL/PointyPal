@@ -1,0 +1,120 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ThemeTokens.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Solid Brushes -->
+    <SolidColorBrush x:Key="DeepCharcoalBrush" Color="{StaticResource DeepCharcoalColor}"/>
+    <SolidColorBrush x:Key="DarkGraphiteBrush" Color="{StaticResource DarkGraphiteColor}"/>
+    <SolidColorBrush x:Key="SurfaceLighterBrush" Color="{StaticResource SurfaceLighterColor}"/>
+    <SolidColorBrush x:Key="SurfaceDeepBrush" Color="{StaticResource SurfaceDeepColor}"/>
+    
+    <SolidColorBrush x:Key="PrimaryAccentBrush" Color="{StaticResource SoftCyanColor}"/>
+    <SolidColorBrush x:Key="SecondaryAccentBrush" Color="{StaticResource VioletAccentColor}"/>
+    
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource WarmWhiteColor}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" Opacity="0.78"/>
+    <SolidColorBrush x:Key="TextSecondarySoftBrush" Color="{StaticResource TextSecondaryColor}" Opacity="0.62"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource MutedBlueGrayColor}"/>
+    
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource WhiteColor}" Opacity="0.08"/>
+    <SolidColorBrush x:Key="AccentBorderBrush" Color="{StaticResource SoftCyanColor}" Opacity="0.20"/>
+    <SolidColorBrush x:Key="AccentBorderStrongBrush" Color="{StaticResource SoftCyanColor}" Opacity="0.38"/>
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessGreenColor}"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningOrangeColor}"/>
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorRedColor}"/>
+
+    <SolidColorBrush x:Key="CyanAccentBrush" Color="{StaticResource SoftCyanColor}"/>
+    <SolidColorBrush x:Key="CyanAccentSoftBrush" Color="{StaticResource SoftCyanColor}" Opacity="0.20"/>
+    <SolidColorBrush x:Key="CyanAccentSubtleBrush" Color="{StaticResource SoftCyanColor}" Opacity="0.10"/>
+    <SolidColorBrush x:Key="CyanAccentBarelyBrush" Color="{StaticResource SoftCyanColor}" Opacity="0.055"/>
+    
+    <SolidColorBrush x:Key="VioletAccentBrush" Color="{StaticResource VioletAccentColor}"/>
+    <SolidColorBrush x:Key="VioletAccentSoftBrush" Color="{StaticResource VioletAccentColor}" Opacity="0.20"/>
+
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource DarkGraphiteColor}"/>
+    <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="{StaticResource SurfaceLighterColor}"/>
+    <SolidColorBrush x:Key="SurfaceHoverBrush" Color="{StaticResource SoftCyanColor}" Opacity="0.12"/>
+    <SolidColorBrush x:Key="InputSurfaceBrush" Color="#131820"/>
+    <SolidColorBrush x:Key="TransparentBrush" Color="#000000" Opacity="0"/>
+
+    <SolidColorBrush x:Key="AnimatedBlobBrush" Color="{StaticResource SoftCyanColor}" Opacity="0.20"/>
+
+    <!-- Gradients -->
+    <LinearGradientBrush x:Key="ShellBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource DeepCharcoalColor}" Offset="0"/>
+        <GradientStop Color="#121822" Offset="0.58"/>
+        <GradientStop Color="#0B0D12" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource SoftCyanColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource VioletAccentColor}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CardGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#1F2630" Offset="0"/>
+        <GradientStop Color="{StaticResource DarkGraphiteColor}" Offset="0.52"/>
+        <GradientStop Color="#141820" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="FeatureCardBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#1E2A33" Offset="0"/>
+        <GradientStop Color="#151D25" Offset="0.58"/>
+        <GradientStop Color="#11151C" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="FeatureCardHoverBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#213945" Offset="0"/>
+        <GradientStop Color="#17202A" Offset="0.62"/>
+        <GradientStop Color="#111720" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="HeroSurfaceBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#1E2E38" Offset="0"/>
+        <GradientStop Color="#171D25" Offset="0.56"/>
+        <GradientStop Color="#12151D" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CommandBarBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#1A1F28" Offset="0"/>
+        <GradientStop Color="#12161D" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="SidebarGradientBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#1C252E" Offset="0"/>
+        <GradientStop Color="#121820" Offset="0.68"/>
+        <GradientStop Color="#0F1116" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Feature icon tile: from-[#22D3EE]/20 to-[#6366F1]/20, matches landing page -->
+    <LinearGradientBrush x:Key="IconTileGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#3322D3EE" Offset="0"/>
+        <GradientStop Color="#336366F1" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CoreNodeGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource SoftCyanColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource VioletAccentColor}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CoreNodeInnerBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#666366F1" Offset="0"/>
+        <GradientStop Color="#5522D3EE" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Gradient for ProgressBar fill -->
+    <LinearGradientBrush x:Key="ProgressFillBrush" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="{StaticResource SoftCyanColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource VioletAccentColor}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Effects -->
+    <DropShadowEffect x:Key="CyanGlowEffect" BlurRadius="26" Color="{StaticResource SoftCyanColor}" Opacity="0.28" ShadowDepth="0"/>
+    <DropShadowEffect x:Key="CyanGlowSoftEffect" BlurRadius="38" Color="{StaticResource SoftCyanColor}" Opacity="0.18" ShadowDepth="0"/>
+    <DropShadowEffect x:Key="FeatureCardGlowEffect" BlurRadius="20" Color="{StaticResource SoftCyanColor}" Opacity="0.10" ShadowDepth="0"/>
+    <DropShadowEffect x:Key="PremiumCardShadow" BlurRadius="26" Color="#000000" Opacity="0.26" ShadowDepth="8"/>
+    <DropShadowEffect x:Key="SubtleSurfaceShadow" BlurRadius="16" Color="#000000" Opacity="0.18" ShadowDepth="3"/>
+
+</ResourceDictionary>

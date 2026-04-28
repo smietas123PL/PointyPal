@@ -203,12 +203,6 @@ public partial class DiagnosticsWindow : Window
             SafeModeActiveText.FontWeight = FontWeights.Normal;
         }
 
-        if (_crashLogger != null)
-        {
-            // We can add crash guard info here if we have it
-        }
-        
-        // This is a bit of a hack to get crash guard info without another field
         string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         string statePath = Path.Combine(appData, "PointyPal", "state", "startup-state.json");
         if (File.Exists(statePath))
@@ -235,9 +229,6 @@ public partial class DiagnosticsWindow : Window
         PreflightReportPathText.Text = File.Exists(reportPath) ? "preflight-report.json" : "-";
         
         CommandLineArgsText.Text = string.Join(" ", Environment.GetCommandLineArgs().Skip(1));
-        
-        // Status is a bit harder without a dedicated status field in service, 
-        // but we can check the file for now or just leave as "-" if not recently run.
     }
 
     private void UpdateSelfTestInfo()
@@ -326,6 +317,10 @@ public partial class DiagnosticsWindow : Window
             CaptureSizeText.Text = $"{capture.Image.Width}x{capture.Image.Height}";
             CursorImgXText.Text = Math.Round(capture.CursorImagePosition.X).ToString();
             CursorImgYText.Text = Math.Round(capture.CursorImagePosition.Y).ToString();
+            
+            // PT011
+            MonitorDpiText.Text = $"{capture.Geometry.DpiScaleX:F2} ({capture.Geometry.DpiScaleX*96:F0} DPI)";
+            MonitorBoundsDipText.Text = $"{capture.Geometry.MonitorBoundsDip.Width:F0}x{capture.Geometry.MonitorBoundsDip.Height:F0}";
         }
 
         if (parsedTag != null && parsedTag.HasPoint)
@@ -337,18 +332,6 @@ public partial class DiagnosticsWindow : Window
 
     public void UpdateInteractionData(InteractionDiagnostics diag)
     {
-        ProviderText.Text = diag.ActiveProvider;
-        WorkerText.Text = diag.WorkerUrl;
-        CleanText.Text = diag.CleanResponse;
-        ClampedText.Text = diag.PointClamped ? "Yes" : "No";
-        TimeText.Text = $"{diag.DurationMs}ms";
-        ErrorText.Text = diag.LastError ?? "-";
-        LastInteractionTotalText.Text = $"{diag.LastInteractionTotalDurationMs:F0}ms";
-        ActiveTimelineIdText.Text = string.IsNullOrWhiteSpace(diag.ActiveTimelineId) ? "-" : diag.ActiveTimelineId;
-        ActiveTimelineStepText.Text = string.IsNullOrWhiteSpace(diag.CurrentActiveStep) ? "-" : diag.CurrentActiveStep;
-        LastSlowestStepText.Text = string.IsNullOrWhiteSpace(diag.LastSlowestStep) ? "-" : diag.LastSlowestStep;
-        LastTimelineSttText.Text = $"{diag.LastSttDurationMs:F0}ms";
-        LastTimelineClaudeText.Text = $"{diag.LastClaudeDurationMs:F0}ms";
         LastTimelineTtsText.Text = $"{diag.LastTimelineTtsDurationMs:F0}ms";
         LastTimelineUiaText.Text = $"{diag.LastTimelineUiAutomationDurationMs:F0}ms";
         LastTimelineScreenshotText.Text = $"{diag.LastScreenshotCaptureDurationMs:F0}ms";
@@ -397,6 +380,15 @@ public partial class DiagnosticsWindow : Window
         ManualRatingText.Text = diag.LastManualRating.HasValue ? diag.LastManualRating.Value.ToString() : "-";
         LatestAttemptPathText.Text = string.IsNullOrEmpty(diag.LatestPointingAttemptPath) ? "-" : Path.GetFileName(diag.LatestPointingAttemptPath);
 
+        // PT011 Accuracy fields
+        if (diag.LastAttempt?.Target != null)
+        {
+            var target = diag.LastAttempt.Target;
+            TargetDipText.Text = $"{target.FinalOverlayDipPoint.X:F0}, {target.FinalOverlayDipPoint.Y:F0}";
+            MonitorDeviceText.Text = target.MonitorDeviceName ?? "-";
+            ClampedImgText.Text = $"{target.ClampedImagePoint.X:F0}, {target.ClampedImagePoint.Y:F0}";
+        }
+
         // Build 014
         DefaultModeText.Text = _configService?.Config.DefaultInteractionMode.ToString() ?? "-";
         LastModeText.Text = diag.InteractionMode;
@@ -409,6 +401,13 @@ public partial class DiagnosticsWindow : Window
         LastProviderText.Text = diag.ActiveProvider;
 
         UpdateUsageAndFolderInfo();
+    }
+
+    public void UpdatePointerQuality(PointerQualityStats stats)
+    {
+        AccuracyScoreText.Text = $"{stats.OverallScore:F1}%";
+        FeedbackSampleText.Text = stats.SampleSize.ToString();
+        CcwPercentText.Text = $"{stats.CorrectPercentage:F0}/{stats.ClosePercentage:F0}/{stats.WrongPercentage:F0}";
     }
 
     public void UpdateVoiceData(bool micAvail, bool recording, string recPath, double durationMs)

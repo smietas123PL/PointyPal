@@ -7,6 +7,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using PointyPal.Capture;
 using PointyPal.Infrastructure;
+using PointyPal.Core;
 using Point = System.Windows.Point;
 using Rect = System.Windows.Rect;
 
@@ -17,6 +18,9 @@ public partial class CalibrationOverlayWindow : Window
     private readonly ConfigService _configService;
     private readonly CoordinateMapper _mapper;
     private readonly DispatcherTimer _refreshTimer;
+    private bool _isInteractive = false;
+
+    public event Action<PointerTarget>? TestPointRequested;
 
     public CalibrationOverlayWindow(ConfigService configService)
     {
@@ -29,11 +33,26 @@ public partial class CalibrationOverlayWindow : Window
         _refreshTimer.Tick += (s, e) => UpdateCursorInfo();
     }
 
-    public void ShowCalibration()
+    public void ShowCalibration(bool interactive = false)
     {
+        _isInteractive = interactive;
         UpdateMonitorPosition();
         DrawGrid();
         _refreshTimer.Start();
+        
+        if (_isInteractive && _configService.Config.DeveloperModeEnabled)
+        {
+            DevControlPanel.Visibility = Visibility.Visible;
+            InfoPanel.Visibility = Visibility.Collapsed;
+            MakeInteractive(true);
+        }
+        else
+        {
+            DevControlPanel.Visibility = Visibility.Collapsed;
+            InfoPanel.Visibility = Visibility.Visible;
+            MakeInteractive(false);
+        }
+
         Show();
     }
 
@@ -43,15 +62,37 @@ public partial class CalibrationOverlayWindow : Window
         Hide();
     }
 
+    private void MakeInteractive(bool interactive)
+    {
+        IntPtr hwnd = new WindowInteropHelper(this).Handle;
+        int extendedStyle = NativeMethods.GetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE);
+        
+        if (interactive)
+        {
+            // Remove WS_EX_TRANSPARENT to receive clicks
+            NativeMethods.SetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE, extendedStyle & ~NativeMethods.WS_EX_TRANSPARENT);
+            this.Focusable = true;
+        }
+        else
+        {
+            // Add WS_EX_TRANSPARENT for click-through
+            NativeMethods.SetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE, extendedStyle | NativeMethods.WS_EX_TRANSPARENT);
+            this.Focusable = false;
+        }
+    }
+
     private void UpdateMonitorPosition()
     {
         NativeMethods.GetCursorPos(out var pt);
-        var bounds = ScreenUtilities.GetMonitorBounds(new Point(pt.X, pt.Y));
+        var info = ScreenUtilities.GetMonitorInfo(new Point(pt.X, pt.Y));
         
-        this.Left = bounds.Left;
-        this.Top = bounds.Top;
-        this.Width = bounds.Width;
-        this.Height = bounds.Height;
+        this.Left = info.BoundsPhysical.Left;
+        this.Top = info.BoundsPhysical.Top;
+        this.Width = info.BoundsPhysical.Width;
+        this.Height = info.BoundsPhysical.Height;
+
+        MonitorInfoText.Text = $"Monitor: {info.BoundsPhysical.Width}x{info.BoundsPhysical.Height} @ {info.BoundsPhysical.Left},{info.BoundsPhysical.Top}";
+        DpiInfoText.Text = $"DPI Scale: {info.DpiScaleX:F2} ({info.DpiScaleX * 96:F0} DPI)";
     }
 
     private void DrawGrid()
@@ -64,34 +105,13 @@ public partial class CalibrationOverlayWindow : Window
         // 1. Draw Screen Grid (Blue, every 100px)
         for (double x = 0; x < w; x += 100)
         {
-            AddGridLine(x, 0, x, h, Brushes.RoyalBlue, 1, x % 500 == 0 ? 2 : 0.5);
-            if (x % 200 == 0) AddLabel(x + 2, 2, x.ToString(), Brushes.RoyalBlue, 10);
+            AddGridLine(x, 0, x, h, Brushes.RoyalBlue, 1, x % 500 == 0 ? 0.8 : 0.3);
+            if (x % 500 == 0) AddLabel(x + 2, 2, x.ToString(), Brushes.RoyalBlue, 10);
         }
         for (double y = 0; y < h; y += 100)
         {
-            AddGridLine(0, y, w, y, Brushes.RoyalBlue, 1, y % 500 == 0 ? 2 : 0.5);
-            if (y % 200 == 0) AddLabel(2, y + 2, y.ToString(), Brushes.RoyalBlue, 10);
-        }
-
-        // 2. Draw Image Grid (Green, based on MaxImageWidth)
-        var config = _configService.Config;
-        double maxW = config.MaxImageWidth;
-        double scale = maxW / w;
-        double imageH = h * scale;
-
-        // Vertical lines every 100 image-pixels
-        for (double ix = 0; ix <= maxW; ix += 100)
-        {
-            double sx = ix / scale;
-            AddGridLine(sx, 0, sx, h, Brushes.LimeGreen, 1, 0.8, new DoubleCollection { 4, 4 });
-            if (ix % 200 == 0) AddLabel(sx + 2, h - 20, $"i:{ix}", Brushes.LimeGreen, 10);
-        }
-        // Horizontal lines every 100 image-pixels
-        for (double iy = 0; iy <= imageH; iy += 100)
-        {
-            double sy = iy / scale;
-            AddGridLine(0, sy, w, sy, Brushes.LimeGreen, 1, 0.8, new DoubleCollection { 4, 4 });
-            if (iy % 200 == 0) AddLabel(w - 50, sy + 2, $"i:{iy}", Brushes.LimeGreen, 10);
+            AddGridLine(0, y, w, y, Brushes.RoyalBlue, 1, y % 500 == 0 ? 0.8 : 0.3);
+            if (y % 500 == 0) AddLabel(2, y + 2, y.ToString(), Brushes.RoyalBlue, 10);
         }
     }
 
@@ -133,31 +153,87 @@ public partial class CalibrationOverlayWindow : Window
 
         ScreenCoordsText.Text = $"Screen: {pt.X}, {pt.Y} (Rel: {relX:F0}, {relY:F0})";
 
-        // Estimate image coords
+        // Estimate image coords if we had a capture
         var config = _configService.Config;
-        double scale = (double)config.MaxImageWidth / this.Width;
-        double imgX = relX * scale;
-        double imgY = relY * scale;
+        double downscale = (double)config.MaxImageWidth / this.Width;
+        if (downscale > 1.0) downscale = 1.0;
+        
+        double imgX = relX * downscale;
+        double imgY = relY * downscale;
 
-        ImageCoordsText.Text = $"Image: {imgX:F0}, {imgY:F0} (Scale: {scale:F4})";
+        ImageCoordsText.Text = $"Image Est: {imgX:F0}, {imgY:F0} (Downscale: {downscale:F4})";
         
         // If monitor changed, refresh grid
-        var currentBounds = ScreenUtilities.GetMonitorBounds(screenPoint);
-        if (Math.Abs(currentBounds.Left - this.Left) > 1 || Math.Abs(currentBounds.Width - this.Width) > 1)
+        var info = ScreenUtilities.GetMonitorInfo(screenPoint);
+        if (Math.Abs(info.BoundsPhysical.Left - this.Left) > 1 || Math.Abs(info.BoundsPhysical.Width - this.Width) > 1)
         {
             UpdateMonitorPosition();
             DrawGrid();
         }
     }
 
+    private void OnTestPointClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is string tag)
+        {
+            double x = 0, y = 0;
+            switch (tag)
+            {
+                case "TopLeft": x = 50; y = 50; break;
+                case "TopRight": x = Width - 50; y = 50; break;
+                case "BottomLeft": x = 50; y = Height - 50; break;
+                case "BottomRight": x = Width - 50; y = Height - 50; break;
+                case "Center": x = Width / 2; y = Height / 2; break;
+            }
+
+            TriggerTestPoint(x, y, tag);
+        }
+    }
+
+    private void OnRunCalibrationTest(object sender, RoutedEventArgs e)
+    {
+        TriggerTestPoint(Width / 2, Height / 2, "Calibration Test");
+    }
+
+    private void TriggerTestPoint(double relX, double relY, string label)
+    {
+        var physicalPoint = new Point(this.Left + relX, this.Top + relY);
+        
+        // We need a fake capture geometry to map this point
+        var info = ScreenUtilities.GetMonitorInfo(physicalPoint);
+        var geometry = new CaptureGeometry
+        {
+            MonitorBoundsPhysical = info.BoundsPhysical,
+            MonitorBoundsDip = info.BoundsDip,
+            DpiScaleX = info.DpiScaleX,
+            DpiScaleY = info.DpiScaleY,
+            DownscaleFactorX = 1.0,
+            DownscaleFactorY = 1.0,
+            CaptureImageWidth = (int)info.BoundsPhysical.Width,
+            CaptureImageHeight = (int)info.BoundsPhysical.Height
+        };
+
+        var target = new PointerTarget
+        {
+            FinalScreenPhysicalPoint = physicalPoint,
+            FinalOverlayDipPoint = new Point(relX / info.DpiScaleX, relY / info.DpiScaleY),
+            Label = label,
+            Source = PointSource.Calibration,
+            Confidence = PointConfidence.High
+        };
+
+        TestPointRequested?.Invoke(target);
+    }
+
+    private void OnCloseClick(object sender, RoutedEventArgs e)
+    {
+        HideCalibration();
+    }
+
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
-        IntPtr hwnd = new WindowInteropHelper(this).Handle;
-        int extendedStyle = NativeMethods.GetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE);
-        NativeMethods.SetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE, extendedStyle | 
-            NativeMethods.WS_EX_TRANSPARENT | 
-            NativeMethods.WS_EX_TOOLWINDOW | 
-            NativeMethods.WS_EX_NOACTIVATE);
+        // Default to transparent
+        MakeInteractive(false);
     }
 }

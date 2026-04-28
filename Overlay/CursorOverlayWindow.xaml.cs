@@ -33,7 +33,9 @@ public partial class CursorOverlayWindow : Window
     private const double OffsetY = 20;
 
     private readonly PointerFlightAnimator _animator = new();
-    private readonly TargetMarkerWindow _targetMarker = new();
+    private readonly TargetMarkerWindow _targetMarker;
+    private readonly PointerFeedbackWindow _feedbackWindow = new();
+    private readonly PointerQualityService _qualityService;
     private readonly DiagnosticsWindow _diagnostics = new();
     private readonly ResponseBubbleWindow _responseBubble = new();
     private readonly CalibrationOverlayWindow _calibrationOverlay;
@@ -41,6 +43,7 @@ public partial class CursorOverlayWindow : Window
 
     private CaptureResult? _latestCapture;
     private PointTag? _latestParsedTag;
+    private PointerTarget? _latestTarget;
     private Point? _latestMappedScreenTarget;
     private string _latestStateReason = string.Empty;
 
@@ -55,6 +58,7 @@ public partial class CursorOverlayWindow : Window
         SelfTestReportService selfTestReportService,
         InteractionTimelineService timelineService,
         PerformanceSummaryService performanceSummaryService,
+        PointerQualityService qualityService,
         AppLifecycleService? lifecycleService = null,
         StartupRegistrationService? startupRegistrationService = null,
         AppLogService? appLogService = null,
@@ -67,7 +71,12 @@ public partial class CursorOverlayWindow : Window
         _pttService = pttService;
         _coordinator = coordinator;
         _configService = configService;
+        _qualityService = qualityService;
         _healthService = healthService;
+        _targetMarker = new TargetMarkerWindow(configService);
+        
+        Pointer.ApplyConfig(configService.Config);
+        _configService.ConfigChanged += OnConfigChanged;
 
         _diagnostics.SetServices(
             configService,
@@ -85,7 +94,9 @@ public partial class CursorOverlayWindow : Window
             resilienceMonitor);
         _resilienceMonitor = resilienceMonitor;
         _calibrationOverlay = new CalibrationOverlayWindow(configService);
-
+        _calibrationOverlay.TestPointRequested += OnCalibrationTestPointRequested;
+        _feedbackWindow.FeedbackReceived += OnFeedbackReceived;
+        
         _stateManager.StateChanged += OnStateChanged;
         _pttService.DiagnosticsToggled += OnDiagnosticsToggled;
         _pttService.CalibrationToggled += OnCalibrationToggled;
@@ -101,7 +112,7 @@ public partial class CursorOverlayWindow : Window
             _resilienceMonitor.DisplayTopologyChanged += OnDisplayTopologyChanged;
         }
 
-        Avatar.UpdateState(_stateManager.CurrentState);
+        Pointer.UpdateState(_stateManager.CurrentState, _configService.Config.ForceSafeMode, _configService.Config.DeveloperModeEnabled);
 
         // Initialize position
         if (NativeMethods.GetCursorPos(out var pt))
@@ -115,14 +126,26 @@ public partial class CursorOverlayWindow : Window
         CompositionTarget.Rendering += OnRendering;
     }
 
-    private void OnFlightRequested(Point screenPoint, TimeSpan duration)
+    private void OnFlightRequested(PointerTarget target, TimeSpan duration)
     {
         Dispatcher.InvokeAsync(() =>
         {
-            _latestMappedScreenTarget = screenPoint;
-            _animator.Start(new Point(_currentX, _currentY), screenPoint, duration);
-            _targetMarker.ShowAt(screenPoint.X, screenPoint.Y);
+            var dipPoint = target.FinalOverlayDipPoint;
+            _latestTarget = target;
+            _latestMappedScreenTarget = target.FinalScreenPhysicalPoint;
+            _animator.Start(new Point(_currentX, _currentY), dipPoint, duration);
+            _targetMarker.ShowAt(dipPoint.X, dipPoint.Y, target.Label);
+            _feedbackWindow.Hide(); // Hide previous if still showing
         });
+    }
+
+    private void OnFeedbackReceived(int rating)
+    {
+        if (_latestTarget != null)
+        {
+            _qualityService.RecordFeedback(rating, _latestTarget);
+            _diagnostics.UpdatePointerQuality(_qualityService.GetStats());
+        }
     }
 
     private void OnResponseBubbleRequested(string text)
@@ -138,6 +161,17 @@ public partial class CursorOverlayWindow : Window
         Dispatcher.InvokeAsync(() =>
         {
             _diagnostics.UpdateInteractionData(diag);
+        });
+    }
+
+    private void OnCalibrationTestPointRequested(PointerTarget target)
+    {
+        Dispatcher.InvokeAsync(() =>
+        {
+            _latestMappedScreenTarget = target.FinalScreenPhysicalPoint;
+            _animator.Start(new Point(_currentX, _currentY), target.FinalOverlayDipPoint, TimeSpan.FromMilliseconds(400));
+            _targetMarker.ShowAt(target.FinalOverlayDipPoint.X, target.FinalOverlayDipPoint.Y, target.Label);
+            _stateManager.SetState(CompanionState.FlyingToTarget, "Calibration Test");
         });
     }
 
@@ -201,12 +235,20 @@ public partial class CursorOverlayWindow : Window
         });
     }
 
+    private void OnConfigChanged(object? sender, AppConfig config)
+    {
+        Dispatcher.InvokeAsync(() => 
+        {
+            Pointer.ApplyConfig(config);
+        });
+    }
+
     private void OnStateChanged(object? sender, (CompanionState State, string Reason) e)
     {
         Dispatcher.InvokeAsync(() => 
         {
             _latestStateReason = e.Reason;
-            Avatar.UpdateState(e.State);
+            Pointer.UpdateState(e.State, _configService.Config.ForceSafeMode, _configService.Config.DeveloperModeEnabled);
             
             if (e.State == CompanionState.FlyingToTarget)
             {
@@ -215,7 +257,7 @@ public partial class CursorOverlayWindow : Window
                 {
                     var target = _latestMappedScreenTarget.Value;
                     _animator.Start(new Point(_currentX, _currentY), target, TimeSpan.FromSeconds(0.6));
-                    _targetMarker.ShowAt(target.X, target.Y);
+                    _targetMarker.ShowAt(target.X, target.Y, "Test Point");
                 }
                 else if (NativeMethods.GetCursorPos(out var pt))
                 {
@@ -225,7 +267,7 @@ public partial class CursorOverlayWindow : Window
                     double targetY = bounds.Y + (bounds.Height * 0.35);
 
                     _animator.Start(new Point(_currentX, _currentY), new Point(targetX, targetY), TimeSpan.FromSeconds(0.6));
-                    _targetMarker.ShowAt(targetX, targetY);
+                    _targetMarker.ShowAt(targetX, targetY, "Fallback Target");
                 }
                 else
                 {
@@ -239,10 +281,12 @@ public partial class CursorOverlayWindow : Window
             else if (e.State == CompanionState.ReturningToCursor)
             {
                 _targetMarker.HideMarker();
+                // We don't hide feedback window here because it might be what triggered the return or we want it to stay for a bit
             }
             else if (e.State == CompanionState.FollowingCursor || e.State == CompanionState.Listening)
             {
                 _targetMarker.HideMarker();
+                _feedbackWindow.Hide();
             }
         });
     }
@@ -269,9 +313,14 @@ public partial class CursorOverlayWindow : Window
         Dispatcher.InvokeAsync(() =>
         {
             if (_calibrationOverlay.Visibility == Visibility.Visible)
+            {
                 _calibrationOverlay.HideCalibration();
+            }
             else
-                _calibrationOverlay.ShowCalibration();
+            {
+                bool interactive = _configService.Config.DeveloperModeEnabled;
+                _calibrationOverlay.ShowCalibration(interactive);
+            }
         });
     }
 
@@ -302,8 +351,9 @@ public partial class CursorOverlayWindow : Window
         double dpiScaleX = source?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
         double dpiScaleY = source?.CompositionTarget?.TransformToDevice.M22 ?? 1.0;
 
-        double cursorTargetX = (pt.X / dpiScaleX) + OffsetX;
-        double cursorTargetY = (pt.Y / dpiScaleY) + OffsetY;
+        double offset = _configService.Config.PointerTargetOffsetPx;
+        double cursorTargetX = (pt.X / dpiScaleX) + offset;
+        double cursorTargetY = (pt.Y / dpiScaleY) + offset;
 
         if (state == CompanionState.FlyingToTarget)
         {
@@ -321,6 +371,16 @@ public partial class CursorOverlayWindow : Window
         {
             if ((DateTime.Now - _pointStartTime).TotalMilliseconds > 500)
             {
+                var config = _configService.Config;
+                bool shouldShowFeedback = config.PointerFeedbackPromptEnabled;
+                if (config.PointerFeedbackPromptDeveloperOnly && !config.DeveloperModeEnabled)
+                    shouldShowFeedback = false;
+
+                if (shouldShowFeedback && _latestTarget != null && _latestTarget.Source != PointSource.Calibration)
+                {
+                    _feedbackWindow.ShowAt(_currentX, _currentY);
+                }
+
                 _stateManager.SetState(CompanionState.ReturningToCursor, "Point finished");
             }
         }
@@ -380,6 +440,7 @@ public partial class CursorOverlayWindow : Window
         _pttService.DiagnosticsToggled -= OnDiagnosticsToggled;
         _pttService.TestF10Requested -= OnTestF10Requested;
         _pttService.TestF11Requested -= OnTestF11Requested;
+        _configService.ConfigChanged -= OnConfigChanged;
         
         _coordinator.FlightRequested -= OnFlightRequested;
         _coordinator.ResponseBubbleRequested -= OnResponseBubbleRequested;

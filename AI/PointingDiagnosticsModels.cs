@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using PointyPal.Capture;
+using PointyPal.Core;
 
 namespace PointyPal.AI;
 
@@ -17,26 +18,27 @@ public class PointingAttempt
     public string RawAiResponse { get; set; } = string.Empty;
     public string CleanResponse { get; set; } = string.Empty;
     
-    // Image space coordinates from AI
-    public double? ParsedPointImageX { get; set; }
-    public double? ParsedPointImageY { get; set; }
-    public string? ParsedPointLabel { get; set; }
+    // Core pointer data
+    public PointerTarget Target { get; set; } = new();
+
+    // Redundant but kept for diagnostic compatibility if needed, 
+    // but better to use Target properties.
+    public double? ParsedPointImageX => Target.OriginalImagePoint.X;
+    public double? ParsedPointImageY => Target.OriginalImagePoint.Y;
+    public string? ParsedPointLabel => Target.Label;
     
-    // Initial mapped screen coordinates (before snapping)
-    public double? MappedScreenX { get; set; }
-    public double? MappedScreenY { get; set; }
+    public double? MappedScreenX => Target.MappedScreenPhysicalPoint.X;
+    public double? MappedScreenY => Target.MappedScreenPhysicalPoint.Y;
     
-    public bool WasPointClamped { get; set; }
+    public bool WasPointClamped => Target.WasClamped;
     
-    // UI Automation context data
     public string? UiElementUnderMappedPoint { get; set; }
-    public string? NearestUiElement { get; set; }
-    public double? DistanceToNearestUiElement { get; set; }
+    public string? NearestUiElement => Target.NearestUiElementName;
+    public double? DistanceToNearestUiElement => Target.DistanceToNearestUiElement;
     
-    // Final coordinates used for flight
-    public double FinalPointScreenX { get; set; }
-    public double FinalPointScreenY { get; set; }
-    public string? AdjustmentReason { get; set; }
+    public double FinalPointScreenX => Target.FinalScreenPhysicalPoint.X;
+    public double FinalPointScreenY => Target.FinalScreenPhysicalPoint.Y;
+    public string? AdjustmentReason => Target.AdjustmentReason;
 }
 
 public class PointValidationResult

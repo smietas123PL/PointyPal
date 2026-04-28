@@ -9,6 +9,9 @@ export interface Env {
 	MAX_CHAT_REQUESTS_PER_DAY?: string;
 	MAX_TRANSCRIBE_REQUESTS_PER_DAY?: string;
 	MAX_TTS_REQUESTS_PER_DAY?: string;
+	MAX_TTS_CHARS?: string;
+	DEFAULT_ELEVENLABS_MODEL_ID?: string;
+	ELEVENLABS_OUTPUT_FORMAT?: string;
 }
 
 const ALLOWED_MODELS = [
@@ -18,7 +21,8 @@ const ALLOWED_MODELS = [
 	'claude-3-opus-20240229',
 	'claude-3-haiku-20240307',
 	'claude-sonnet-4-5',
-	'claude-sonnet-4-6'
+	'claude-sonnet-4-6',
+	'claude-haiku-4-5-20251001'
 ];
 
 export default {
@@ -29,7 +33,7 @@ export default {
 		// CORS setup
 		const origin = request.headers.get('Origin');
 		const allowedOrigins = env.ALLOWED_ORIGINS ? env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) : [];
-		
+
 		let accessControlAllowOrigin = '*';
 		if (allowedOrigins.length > 0) {
 			if (origin && allowedOrigins.includes(origin)) {
@@ -58,10 +62,10 @@ export default {
 			const clientKey = request.headers.get('X-PointyPal-Client-Key');
 			if (!env.POINTYPAL_CLIENT_KEY || clientKey !== env.POINTYPAL_CLIENT_KEY) {
 				console.warn(`[${requestId}] Unauthorized request to ${url.pathname}`);
-				return new Response(JSON.stringify({ 
-					error: 'unauthorized', 
-					status: 401, 
-					requestId 
+				return new Response(JSON.stringify({
+					error: 'unauthorized',
+					status: 401,
+					requestId
 				}), {
 					status: 401,
 					headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -71,8 +75,8 @@ export default {
 
 		// GET /health
 		if (url.pathname === '/health' && request.method === 'GET') {
-			return new Response(JSON.stringify({ 
-				ok: true, 
+			return new Response(JSON.stringify({
+				ok: true,
 				service: 'pointypal-worker',
 				version: '1.1.0',
 				timestamp: new Date().toISOString(),
@@ -155,7 +159,7 @@ export default {
 				console.log(`[${requestId}] TTS request: len=${text.length}, voice=${voiceId}, model=${modelId}`);
 
 				const ttsUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=${outputFormat}`;
-				
+
 				const ttsResponse = await fetch(ttsUrl, {
 					method: 'POST',
 					headers: {
@@ -307,7 +311,7 @@ export default {
 					throw new Error("Transcription timed out in worker.");
 				}
 
-				return new Response(JSON.stringify({ 
+				return new Response(JSON.stringify({
 					text: text,
 					provider: "assemblyai",
 					durationMs: Date.now() - startTime,
@@ -329,7 +333,7 @@ export default {
 		if (url.pathname === '/chat' && request.method === 'POST') {
 			try {
 				const body: any = await request.json();
-				
+
 				// Validation
 				if (!body.screenshotBase64 && !body.userText) {
 					return new Response(JSON.stringify({ error: 'validation_failed', message: 'Missing both screenshot and text', status: 400, requestId }), {
@@ -370,7 +374,7 @@ export default {
 					}
 				}
 
-				const model = body.model || env.DEFAULT_CLAUDE_MODEL || env.CLAUDE_MODEL || 'claude-3-5-sonnet-20240620';
+				const model = body.model || env.DEFAULT_CLAUDE_MODEL || env.CLAUDE_MODEL || 'claude-haiku-4-5-20251001';
 				if (!ALLOWED_MODELS.includes(model)) {
 					return new Response(JSON.stringify({ error: 'model_not_allowed', message: `Model ${model} is not in allowlist`, status: 400, requestId }), {
 						status: 400,
@@ -384,7 +388,7 @@ export default {
 
 				const profileInstructions = body.promptProfileInstructions || '';
 				const safeProfileInstructions = profileInstructions.substring(0, 2000);
-				
+
 				console.log(`[${requestId}] Chat request: model=${model}, mode=${safeInteractionMode}, textLen=${body.userText?.length || 0}`);
 
 				const systemPrompt = `Jesteś PointyPal, pomocnym asystentem kursora w systemie Windows.
@@ -419,7 +423,7 @@ Instrukcje dodatkowe: ${body.instructions || 'Brak'}`;
 - Element Under Cursor: ${ctx.elementUnderCursor?.name || 'None'} (${ctx.elementUnderCursor?.localizedControlType || 'Unknown'})`;
 
 					if (ctx.nearbyElements && ctx.nearbyElements.length > 0) {
-						uiContextText += `\n- Nearby Elements:\n  ${ctx.nearbyElements.slice(0, 20).map((e: any) => 
+						uiContextText += `\n- Nearby Elements:\n  ${ctx.nearbyElements.slice(0, 20).map((e: any) =>
 							`* ${e.name || e.automationId || 'Unnamed'} (${e.localizedControlType}): [${Math.round(e.boundingRectangle.left)},${Math.round(e.boundingRectangle.top)},${Math.round(e.boundingRectangle.width)}x${Math.round(e.boundingRectangle.height)}]`
 						).join('\n  ')}`;
 					}
@@ -436,7 +440,7 @@ Instrukcje dodatkowe: ${body.instructions || 'Brak'}`;
 						},
 					});
 				}
-				
+
 				content.push({
 					type: 'text',
 					text: (body.userText || 'Co widzisz na tym obrazku?') + uiContextText.substring(0, 5000),

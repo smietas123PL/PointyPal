@@ -53,6 +53,9 @@ public class PushToTalkService : IDisposable
     public event Action<int>? RatingSubmitted;
     public event Action<string, ProviderOverride>? InteractionRequested;
     public event EventHandler? QuickAskRequested;
+    
+    public void RequestCalibrationToggle() => CalibrationToggled?.Invoke(this, EventArgs.Empty);
+    public void RequestDiagnosticsToggle() => DiagnosticsToggled?.Invoke(this, EventArgs.Empty);
 
     public PushToTalkService(
         AppStateManager stateManager, 

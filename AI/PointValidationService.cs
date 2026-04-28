@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using PointyPal.Capture;
+using PointyPal.Core;
 using PointyPal.Infrastructure;
 using Point = System.Windows.Point;
 using Rect = System.Windows.Rect;
@@ -29,6 +30,18 @@ public class PointValidationService
         string cleanResponse)
     {
         var config = _configService.Config;
+        var mapper = new CoordinateMapper();
+        
+        var target = new PointerTarget
+        {
+            OriginalImagePoint = new Point(tag.X, tag.Y),
+            Label = tag.Label,
+            Source = PointSource.ClaudePoint,
+            Confidence = PointConfidence.Unknown,
+            MonitorDeviceName = capture.Geometry.MonitorDeviceName,
+            CaptureGeometrySummary = capture.Geometry.ToString()
+        };
+
         var attempt = new PointingAttempt
         {
             Timestamp = DateTime.Now,
@@ -36,16 +49,10 @@ public class PointValidationService
             ProviderName = providerName,
             ScreenshotWidth = capture.Image.Width,
             ScreenshotHeight = capture.Image.Height,
-            MonitorBounds = ScreenUtilities.GetMonitorBounds(initialMappedPoint),
+            MonitorBounds = capture.Geometry.MonitorBoundsPhysical,
             RawAiResponse = rawResponse,
             CleanResponse = cleanResponse,
-            ParsedPointImageX = tag.HasPoint ? tag.X : null,
-            ParsedPointImageY = tag.HasPoint ? tag.Y : null,
-            ParsedPointLabel = tag.Label,
-            MappedScreenX = initialMappedPoint.X,
-            MappedScreenY = initialMappedPoint.Y,
-            FinalPointScreenX = initialMappedPoint.X,
-            FinalPointScreenY = initialMappedPoint.Y
+            Target = target
         };
 
         var validation = new PointValidationResult
@@ -60,69 +67,88 @@ public class PointValidationService
             return (attempt, validation);
         }
 
-        // 1. Image bounds check
-        bool inImageBounds = tag.X >= 0 && tag.X < capture.Image.Width &&
-                             tag.Y >= 0 && tag.Y < capture.Image.Height;
-        validation.InImageBounds = inImageBounds;
+        // 1. Hardened mapping and clamping
+        target.ClampedImagePoint = mapper.ClampImagePoint(target.OriginalImagePoint, capture.Geometry);
+        var mappingResult = mapper.ImageToScreenPhysical(target.OriginalImagePoint, capture.Geometry);
         
-        if (!inImageBounds)
-        {
-            attempt.WasPointClamped = true;
-            validation.WasClamped = true;
-        }
+        target.WasClamped = mappingResult.WasClamped;
+        target.MappedScreenPhysicalPoint = mappingResult.OutputPoint;
+        target.FinalScreenPhysicalPoint = mappingResult.OutputPoint;
+        
+        validation.InImageBounds = !mappingResult.WasClamped;
+        validation.WasClamped = mappingResult.WasClamped;
 
         // 2. Monitor bounds check
-        var monitorBounds = attempt.MonitorBounds;
-        validation.InMonitorBounds = monitorBounds.Contains(initialMappedPoint);
+        validation.InMonitorBounds = capture.Geometry.MonitorBoundsPhysical.Contains(target.MappedScreenPhysicalPoint);
 
         // 3. Virtual desktop bounds check
-        var virtualBounds = new Rect(
-            SystemParameters.VirtualScreenLeft,
-            SystemParameters.VirtualScreenTop,
-            SystemParameters.VirtualScreenWidth,
-            SystemParameters.VirtualScreenHeight);
-        validation.InVirtualDesktopBounds = virtualBounds.Contains(initialMappedPoint);
+        validation.InVirtualDesktopBounds = capture.Geometry.VirtualScreenBounds.Contains(target.MappedScreenPhysicalPoint);
 
-        // 4. UI Automation Context analysis
+        // 4. UI Automation Context analysis & Snapping
         if (uiContext != null && uiContext.IsAvailable)
         {
             attempt.UiElementUnderMappedPoint = uiContext.ElementUnderCursor?.Name ?? uiContext.ElementUnderCursor?.ControlType;
             
-            var (nearest, distance) = FindNearestUsefulElement(initialMappedPoint, uiContext.NearbyElements, config);
+            var (nearest, distance) = FindNearestUsefulElement(target.MappedScreenPhysicalPoint, uiContext.NearbyElements, config);
             if (nearest != null)
             {
-                attempt.NearestUiElement = $"{nearest.Name} ({nearest.ControlType})";
-                attempt.DistanceToNearestUiElement = distance;
+                target.NearestUiElementName = nearest.Name;
+                target.NearestUiElementType = nearest.ControlType;
+                target.DistanceToNearestUiElement = distance;
 
-                // 5. Snapping logic
-                if (config.PointSnappingEnabled && distance <= config.PointSnappingMaxDistancePx)
+                // 5. Snapping logic polish
+                bool shouldSnap = config.PointSnappingEnabled && distance <= config.PointSnappingMaxDistancePx;
+                
+                // Don't snap if nearest is a huge container
+                if (shouldSnap && nearest.BoundingRectangle.Width > 800 && nearest.BoundingRectangle.Height > 600)
                 {
-                    var center = new Point(
-                        nearest.BoundingRectangle.Left + nearest.BoundingRectangle.Width / 2,
-                        nearest.BoundingRectangle.Top + nearest.BoundingRectangle.Height / 2);
+                    shouldSnap = false;
+                    target.AdjustmentReason = "NoSnapHugeElement";
+                }
+
+                if (shouldSnap)
+                {
+                    Point snapPoint;
+                    if (config.PointSnappingSnapToElementCenter)
+                    {
+                        snapPoint = new Point(
+                            nearest.BoundingRectangle.Left + nearest.BoundingRectangle.Width / 2,
+                            nearest.BoundingRectangle.Top + nearest.BoundingRectangle.Height / 2);
+                    }
+                    else
+                    {
+                        snapPoint = new Point(
+                            nearest.BoundingRectangle.Left + nearest.BoundingRectangle.Width / 2,
+                            nearest.BoundingRectangle.Top + nearest.BoundingRectangle.Height / 2);
+                    }
                     
-                    attempt.FinalPointScreenX = center.X;
-                    attempt.FinalPointScreenY = center.Y;
+                    target.FinalScreenPhysicalPoint = snapPoint;
+                    target.WasSnapped = true;
+                    target.Source = PointSource.UiAutomationSnap;
                     
                     if (IsButtonLike(nearest.ControlType))
-                        attempt.AdjustmentReason = "SnappedToNearestButton";
+                        target.AdjustmentReason = "SnappedToNearestButton";
                     else
-                        attempt.AdjustmentReason = "SnappedToNearestUiElement";
+                        target.AdjustmentReason = "SnappedToNearestUiElement";
                 }
-                else if (config.PointSnappingEnabled)
+                else if (config.PointSnappingEnabled && string.IsNullOrEmpty(target.AdjustmentReason))
                 {
-                    attempt.AdjustmentReason = "NoSnapDistanceTooLarge";
+                    target.AdjustmentReason = "NoSnapDistanceTooLarge";
                 }
             }
             else if (config.PointSnappingEnabled)
             {
-                attempt.AdjustmentReason = "NoSnapNoNearbyElements";
+                target.AdjustmentReason = "NoSnapNoNearbyElements";
             }
         }
         else if (config.PointSnappingEnabled)
         {
-            attempt.AdjustmentReason = "NoUiAutomationContext";
+            target.AdjustmentReason = "NoUiAutomationContext";
         }
+
+        // 6. Convert final physical point to DIPs for the overlay
+        var dipResult = mapper.ScreenPhysicalToOverlayDip(target.FinalScreenPhysicalPoint, capture.Geometry);
+        target.FinalOverlayDipPoint = dipResult.OutputPoint;
 
         return (attempt, validation);
     }

@@ -1,5 +1,8 @@
 using System;
 using System.Drawing;
+using System.Linq;
+using System.Windows;
+using Point = System.Windows.Point;
 
 namespace PointyPal.Capture;
 
@@ -8,11 +11,12 @@ public class CaptureResult : IDisposable
     public Bitmap Image { get; set; } = null!;
     public int OriginalWidth { get; set; }
     public int OriginalHeight { get; set; }
-    public System.Windows.Rect MonitorBounds { get; set; }
-    public System.Windows.Point CursorScreenPosition { get; set; }
-    public System.Windows.Point CursorImagePosition { get; set; }
+    public Rect MonitorBounds { get; set; }
+    public Point CursorScreenPosition { get; set; }
+    public Point CursorImagePosition { get; set; }
     public DateTime CaptureTimestamp { get; set; }
     public string ImagePath { get; set; } = string.Empty;
+    public CaptureGeometry Geometry { get; set; } = new();
 
     public byte[] GetJpegBytes(int quality = 70)
     {

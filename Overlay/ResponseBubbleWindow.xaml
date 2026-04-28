@@ -10,7 +10,10 @@
         Background="Transparent"
         Focusable="False"
         IsHitTestVisible="False">
-    <Border Background="#CC000000" CornerRadius="8" Padding="10" Margin="10">
+    <Border CornerRadius="8" Padding="10" Margin="10">
+        <Border.Background>
+            <SolidColorBrush Color="#000000" Opacity="0.80"/>
+        </Border.Background>
         <TextBlock x:Name="MessageText" Foreground="White" FontSize="14" MaxWidth="300" TextWrapping="Wrap" />
     </Border>
 </Window>

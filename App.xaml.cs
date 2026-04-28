@@ -38,6 +38,7 @@ public partial class App : System.Windows.Application
     private PreflightCheckService? _preflightService;
     private RcReadinessService? _readinessService;
     private RcValidationService? _validationService;
+    private PointerQualityService? _qualityService;
 
     internal InteractionCoordinator? Coordinator => _coordinator;
 
@@ -145,6 +146,7 @@ public partial class App : System.Windows.Application
         _selfTestReportService = new SelfTestReportService(_configService, _appLogService);
         _timelineService = new InteractionTimelineService(_configService);
         _performanceSummaryService = new PerformanceSummaryService(_configService, _appLogService);
+        _qualityService = new PointerQualityService();
         var debugLogger = new DebugLogger(_configService);
         _cleanupService = new DebugArtifactCleanupService(_configService, _appLogService);
         _cleanupService.RunStartupCleanup();
@@ -197,7 +199,7 @@ public partial class App : System.Windows.Application
             validationService, responseValidator,
             fakeTtsProvider, workerTtsProvider, _audioService,
             _usageTracker, debugLogger, historyService,
-            _timelineService, _performanceSummaryService, _resilienceMonitor, _appLogService, providerPolicy);
+            _timelineService, _performanceSummaryService, _qualityService!, _resilienceMonitor, _appLogService, providerPolicy);
 
         var coordinator = _coordinator;
 
@@ -238,6 +240,7 @@ public partial class App : System.Windows.Application
             _stateManager, _pttService, coordinator,
             _configService, _usageTracker, _cleanupService, _healthService, _selfTestReportService,
             _timelineService, _performanceSummaryService,
+            _qualityService!,
             _lifecycleService, _startupRegistrationService, _appLogService, _crashLogger, _singleInstanceService,
             _resilienceMonitor);
         _trayManager = new TrayManager(
@@ -332,6 +335,7 @@ public partial class App : System.Windows.Application
             _configService,
             _usageTracker,
             _healthService,
+            _pttService,
             _selfTestReportService,
             _timelineService,
             _performanceSummaryService,
@@ -345,7 +349,8 @@ public partial class App : System.Windows.Application
             _crashLoopGuard,
             _preflightService,
             _readinessService,
-            _validationService);
+            _validationService,
+            _qualityService);
         cc.Show();
     }
 

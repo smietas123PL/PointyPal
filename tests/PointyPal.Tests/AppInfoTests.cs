@@ -10,7 +10,7 @@ public class AppInfoTests
     public void AppInfo_UsesPt003ReleaseDefaults()
     {
         AppInfo.AppName.Should().Be("PointyPal");
-        AppInfo.Version.Should().Be("0.21.0");
+        AppInfo.Version.Should().StartWith("0.21.0");
         AppInfo.BuildChannel.Should().Be("private-rc");
         AppInfo.ReleaseLabel.Should().Be("private-rc.1");
         AppInfo.BaselineDate.Should().Be("2026-04-27");

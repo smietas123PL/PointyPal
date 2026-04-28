@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using PointyPal.Infrastructure;
+using System.Windows;
 using Point = System.Windows.Point;
 
 namespace PointyPal.Capture;
@@ -20,7 +21,8 @@ public class ScreenCaptureService
         }
 
         var cursorScreenPoint = new Point(cursorPt.X, cursorPt.Y);
-        var monitorBounds = ScreenUtilities.GetMonitorBounds(cursorScreenPoint);
+        var monitorInfo = ScreenUtilities.GetMonitorInfo(cursorScreenPoint);
+        var monitorBounds = monitorInfo.BoundsPhysical;
 
         int originalWidth = (int)monitorBounds.Width;
         int originalHeight = (int)monitorBounds.Height;
@@ -50,13 +52,37 @@ public class ScreenCaptureService
         scaledGraphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
         scaledGraphics.DrawImage(bitmap, new Rectangle(0, 0, targetWidth, targetHeight));
 
-        double scaleX = (double)targetWidth / originalWidth;
-        double scaleY = (double)targetHeight / originalHeight;
+        double downscaleFactorX = (double)targetWidth / originalWidth;
+        double downscaleFactorY = (double)targetHeight / originalHeight;
 
-        double cursorImageX = (cursorPt.X - monitorBounds.X) * scaleX;
-        double cursorImageY = (cursorPt.Y - monitorBounds.Y) * scaleY;
+        double cursorImageX = (cursorPt.X - monitorBounds.X) * downscaleFactorX;
+        double cursorImageY = (cursorPt.Y - monitorBounds.Y) * downscaleFactorY;
 
         string imagePath = saveToDisk ? SaveDebugImage(scaledBitmap, jpegQuality) : string.Empty;
+
+        var virtualBounds = new System.Windows.Rect(
+            SystemParameters.VirtualScreenLeft,
+            SystemParameters.VirtualScreenTop,
+            SystemParameters.VirtualScreenWidth,
+            SystemParameters.VirtualScreenHeight);
+
+        var geometry = new CaptureGeometry
+        {
+            CaptureImageWidth = targetWidth,
+            CaptureImageHeight = targetHeight,
+            OriginalMonitorPixelWidth = originalWidth,
+            OriginalMonitorPixelHeight = originalHeight,
+            MonitorBoundsPhysical = monitorBounds,
+            MonitorBoundsDip = monitorInfo.BoundsDip,
+            DpiScaleX = monitorInfo.DpiScaleX,
+            DpiScaleY = monitorInfo.DpiScaleY,
+            DownscaleFactorX = downscaleFactorX,
+            DownscaleFactorY = downscaleFactorY,
+            CursorScreenPhysical = cursorScreenPoint,
+            CursorImagePoint = new System.Windows.Point(cursorImageX, cursorImageY),
+            VirtualScreenBounds = virtualBounds,
+            CaptureTimestamp = DateTime.Now
+        };
 
         return new CaptureResult
         {
@@ -65,9 +91,10 @@ public class ScreenCaptureService
             OriginalHeight = originalHeight,
             MonitorBounds = monitorBounds,
             CursorScreenPosition = cursorScreenPoint,
-            CursorImagePosition = new Point(cursorImageX, cursorImageY),
-            CaptureTimestamp = DateTime.Now,
-            ImagePath = imagePath
+            CursorImagePosition = geometry.CursorImagePoint,
+            CaptureTimestamp = geometry.CaptureTimestamp,
+            ImagePath = imagePath,
+            Geometry = geometry
         };
     }
 

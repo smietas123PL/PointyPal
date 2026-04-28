@@ -45,8 +45,13 @@ public partial class SetupWizardWindow : Window
 
         WorkerUrlBox.Text = _state.WorkerBaseUrl;
         WorkerKeyBox.Password = _state.WorkerClientKey;
+        EnableVoiceInputCheck.IsChecked = _state.VoiceEnabled;
         EnableTtsCheck.IsChecked = _state.TtsEnabled;
         StartWithWindowsCheck.IsChecked = config.StartWithWindows;
+
+        // Wire up TTS check for immediate UI feedback
+        EnableTtsCheck.Checked += (s, e) => { TestTtsBtn.Visibility = Visibility.Visible; };
+        EnableTtsCheck.Unchecked += (s, e) => { TestTtsBtn.Visibility = Visibility.Collapsed; };
 
         if (_configService.SafeModeActive)
         {
@@ -58,32 +63,48 @@ public partial class SetupWizardWindow : Window
     private void UpdateStepVisibility()
     {
         StepWelcome.Visibility = _currentStep == SetupWizardStep.Welcome ? Visibility.Visible : Visibility.Collapsed;
-        StepPrivacy.Visibility = _currentStep == SetupWizardStep.Privacy ? Visibility.Visible : Visibility.Collapsed;
-        StepWorker.Visibility = _currentStep == SetupWizardStep.WorkerConnection ? Visibility.Visible : Visibility.Collapsed;
-        StepVoiceInput.Visibility = _currentStep == SetupWizardStep.VoiceInput ? Visibility.Visible : Visibility.Collapsed;
-        StepVoiceOutput.Visibility = _currentStep == SetupWizardStep.VoiceOutput ? Visibility.Visible : Visibility.Collapsed;
-        StepHotkeys.Visibility = _currentStep == SetupWizardStep.Hotkeys ? Visibility.Visible : Visibility.Collapsed;
-        StepRealFlow.Visibility = _currentStep == SetupWizardStep.RealFlowTest ? Visibility.Visible : Visibility.Collapsed;
-        StepComplete.Visibility = _currentStep == SetupWizardStep.Complete ? Visibility.Visible : Visibility.Collapsed;
+        StepVoiceCheck.Visibility = _currentStep == SetupWizardStep.VoiceCheck ? Visibility.Visible : Visibility.Collapsed;
+        StepWorkerLink.Visibility = _currentStep == SetupWizardStep.WorkerLink ? Visibility.Visible : Visibility.Collapsed;
+        StepProviderSetup.Visibility = _currentStep == SetupWizardStep.ProviderSetup ? Visibility.Visible : Visibility.Collapsed;
+        StepPrivacySettings.Visibility = _currentStep == SetupWizardStep.PrivacySettings ? Visibility.Visible : Visibility.Collapsed;
+        StepHotkeyLearn.Visibility = _currentStep == SetupWizardStep.HotkeyLearn ? Visibility.Visible : Visibility.Collapsed;
+        StepFinishAndTest.Visibility = _currentStep == SetupWizardStep.FinishAndTest ? Visibility.Visible : Visibility.Collapsed;
 
         PrevBtn.Visibility = _currentStep == SetupWizardStep.Welcome ? Visibility.Collapsed : Visibility.Visible;
-        NextBtn.Content = _currentStep == SetupWizardStep.Complete ? "Finish" : "Continue";
-        SkipBtn.Visibility = _currentStep == SetupWizardStep.Complete ? Visibility.Collapsed : Visibility.Visible;
+        NextBtn.Content = _currentStep == SetupWizardStep.FinishAndTest ? "Start Using PointyPal" : "Continue";
+        SkipBtn.Visibility = _currentStep == SetupWizardStep.FinishAndTest ? Visibility.Collapsed : Visibility.Visible;
 
-        if (_currentStep == SetupWizardStep.Complete)
+        // Update progress bar and text
+        int stepIndex = (int)_currentStep + 1;
+        SetupProgressBar.Value = stepIndex;
+        StepCounterText.Text = $"Step {stepIndex} of 7";
+
+        if (_currentStep == SetupWizardStep.ProviderSetup)
         {
-            FinalVoiceInputText.Text = _configService.Config.VoiceInputEnabled ? "✓ Voice Input Enabled" : "○ Voice Input Disabled";
-            FinalVoiceOutputText.Text = _configService.Config.TtsEnabled ? "✓ Voice Output Enabled" : "○ Voice Output Disabled";
-            FinalDevModeText.Text = _configService.Config.DeveloperModeEnabled ? "✓ Developer Mode Enabled" : "- Developer Mode Disabled";
+            TestTtsBtn.Visibility = (EnableTtsCheck.IsChecked == true) ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 
     private void NextBtn_Click(object sender, RoutedEventArgs e)
     {
-        if (_currentStep == SetupWizardStep.Complete)
+        if (_currentStep == SetupWizardStep.FinishAndTest)
         {
             FinishBtn_Click(sender, e);
             return;
+        }
+
+        if (_currentStep == SetupWizardStep.WorkerLink)
+        {
+            // Auto-save worker link when continuing
+            _configService.Config.WorkerBaseUrl = WorkerUrlBox.Text.Trim();
+            _configService.Config.WorkerClientKey = WorkerKeyBox.Password;
+            _configService.SaveConfig(_configService.Config);
+        }
+        else if (_currentStep == SetupWizardStep.ProviderSetup)
+        {
+            _configService.Config.VoiceInputEnabled = EnableVoiceInputCheck.IsChecked == true;
+            _configService.Config.TtsEnabled = EnableTtsCheck.IsChecked == true;
+            _configService.SaveConfig(_configService.Config);
         }
 
         _currentStep = (SetupWizardStep)((int)_currentStep + 1);
@@ -234,18 +255,7 @@ public partial class SetupWizardWindow : Window
         MessageBox.Show("Test request sent. Check your Worker logs or app logs for results.", "Real STT Test Started");
     }
 
-    // Step 5: Voice Output
-    private void EnableTtsCheck_Checked(object sender, RoutedEventArgs e)
-    {
-        _configService.Config.TtsEnabled = true;
-        TtsStatusText.Text = "TTS is enabled.";
-    }
 
-    private void EnableTtsCheck_Unchecked(object sender, RoutedEventArgs e)
-    {
-        _configService.Config.TtsEnabled = false;
-        TtsStatusText.Text = "TTS is currently disabled.";
-    }
 
     private async void TestTtsBtn_Click(object sender, RoutedEventArgs e)
     {

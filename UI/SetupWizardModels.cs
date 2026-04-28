@@ -5,13 +5,12 @@ namespace PointyPal.UI;
 public enum SetupWizardStep
 {
     Welcome,
-    Privacy,
-    WorkerConnection,
-    VoiceInput,
-    VoiceOutput,
-    Hotkeys,
-    RealFlowTest,
-    Complete
+    VoiceCheck,
+    WorkerLink,
+    ProviderSetup,
+    PrivacySettings,
+    HotkeyLearn,
+    FinishAndTest
 }
 
 public class SetupWizardState

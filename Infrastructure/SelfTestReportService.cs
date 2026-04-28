@@ -177,6 +177,21 @@ public class SelfTestReportService
         return null;
     }
 
+    public async Task<SelfTestResult> RunQuickSelfTestAsync()
+    {
+        var harness = new InteractionSimulationHarness(_configService);
+        return await RunAndSaveAsync(harness, SelfTestMode.Quick);
+    }
+
+    public void OpenLastReport()
+    {
+        string path = File.Exists(LastReportPath) ? LastReportPath : ReportPath;
+        if (File.Exists(path))
+        {
+            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
+        }
+    }
+
     private void OnStateChanged()
     {
         StateChanged?.Invoke(this, EventArgs.Empty);

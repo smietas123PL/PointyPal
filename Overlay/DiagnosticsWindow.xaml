@@ -3,7 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="DiagnosticsWindow" Height="700" Width="350"
         AllowsTransparency="True" WindowStyle="None" Topmost="True" ShowInTaskbar="False"
-        Background="#88000000" Focusable="False" IsHitTestVisible="False">
+        Focusable="False" IsHitTestVisible="False">
+    <Window.Background>
+        <SolidColorBrush Color="#000000" Opacity="0.53"/>
+    </Window.Background>
     <ScrollViewer VerticalScrollBarVisibility="Hidden">
         <StackPanel Margin="10">
             <TextBlock Foreground="White" FontSize="10" FontFamily="Consolas">
@@ -271,6 +274,23 @@
                 <Run Text="Display Cnt: "/><Run x:Name="ResDisplayCntText" Text="1"/>
                 <LineBreak/>
                 <Run Text="Res Warning: "/><Run x:Name="ResWarningText" Text="No"/>
+                <LineBreak/>
+                <Run Text="-- PT011 Accuracy &amp; Quality --"/><LineBreak/>
+                <Run Text="Monitor DPI: "/><Run x:Name="MonitorDpiText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Monitor Bounds DIP: "/><Run x:Name="MonitorBoundsDipText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Target DIP: "/><Run x:Name="TargetDipText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Accuracy Score: "/><Run x:Name="AccuracyScoreText" Text="0%"/>
+                <LineBreak/>
+                <Run Text="Feedback Sample: "/><Run x:Name="FeedbackSampleText" Text="0"/>
+                <LineBreak/>
+                <Run Text="C/C/W %: "/><Run x:Name="CcwPercentText" Text="0/0/0"/>
+                <LineBreak/>
+                <Run Text="Device: "/><Run x:Name="MonitorDeviceText" Text="-"/>
+                <LineBreak/>
+                <Run Text="Clamped Img: "/><Run x:Name="ClampedImgText" Text="-"/>
                 <LineBreak/>
             </TextBlock>
         </StackPanel>

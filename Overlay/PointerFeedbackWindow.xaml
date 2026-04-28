@@ -1,0 +1,35 @@
+<Window x:Class="PointyPal.Overlay.PointerFeedbackWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Pointer Feedback" Height="80" Width="400"
+        AllowsTransparency="True" WindowStyle="None" Topmost="True" ShowInTaskbar="False"
+        Background="Transparent" Focusable="False">
+    <Border CornerRadius="12" BorderThickness="1" Padding="15,10">
+        <Border.Background>
+            <SolidColorBrush Color="#1E1E1E" Opacity="0.93"/>
+        </Border.Background>
+        <Border.BorderBrush>
+            <SolidColorBrush Color="#FFFFFF" Opacity="0.20"/>
+        </Border.BorderBrush>
+        <StackPanel HorizontalAlignment="Center">
+            <TextBlock Text="Did PointyPal point to the right place?" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,5" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Correct" Click="OnRatingClick" Tag="3" Margin="4" Padding="12,4" Background="#34C759" Foreground="White" BorderThickness="0">
+                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                </Button>
+                <Button Content="Close" Click="OnRatingClick" Tag="2" Margin="4" Padding="12,4" Background="#FF9500" Foreground="White" BorderThickness="0">
+                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                </Button>
+                <Button Content="Wrong" Click="OnRatingClick" Tag="1" Margin="4" Padding="12,4" Background="#FF3B30" Foreground="White" BorderThickness="0">
+                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="6"/></Style></Button.Resources>
+                </Button>
+                <Button Content="✕" Click="OnDismissClick" Margin="10,0,0,0" Background="Transparent" BorderThickness="0" VerticalAlignment="Center">
+                    <Button.Foreground>
+                        <SolidColorBrush Color="#FFFFFF" Opacity="0.4"/>
+                    </Button.Foreground>
+                </Button>
+            </StackPanel>
+            <TextBlock Text="Feedback stays local and helps tune pointer accuracy." Foreground="#86868B" FontSize="10" HorizontalAlignment="Center" Margin="0,5,0,0" />
+        </StackPanel>
+    </Border>
+</Window>

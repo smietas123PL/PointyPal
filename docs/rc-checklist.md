@@ -14,6 +14,13 @@ Follow these steps to validate a build for RC readiness.
     - [ ] Check max handles/threads (should be stable).
 - [ ] Verify **P95 Latency** is within acceptable limits (< 2000ms for full loop).
 
+## 2.5. Pointer Accuracy & Calibration (PT012)
+- [ ] Run [Pointer Calibration Guide](pointer-calibration.md) steps.
+- [ ] Verify accuracy on primary and secondary monitors.
+- [ ] Run [Pointer QA Checklist](pointer-qa-checklist.md).
+- [ ] Export and verify [Pointer QA Report](pointer-calibration.md#pointer-quality-score).
+- [ ] Confirm snapping thresholds are stable.
+
 ## 3. Recovery Validation
 - [ ] Force a crash loop (kill process 3 times during startup).
     - [ ] Verify app starts in Safe Mode.

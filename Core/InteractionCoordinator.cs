@@ -137,6 +137,7 @@ public class InteractionDiagnostics
     public string LastTimelineErrorOrCancellationReason { get; set; } = "";
     public long ScreenshotByteSize { get; set; }
     public string? RequestId { get; set; }
+    public AI.PointingAttempt? LastAttempt { get; set; }
 }
 
 public class InteractionCoordinator : IDisposable
@@ -163,6 +164,7 @@ public class InteractionCoordinator : IDisposable
     private readonly ResilienceMonitorService? _resilienceMonitor;
     private readonly AppLogService? _appLog;
     private readonly ProviderPolicyService _providerPolicy;
+    private readonly PointerQualityService _qualityService;
 
     private PointingAttempt? _lastAttempt;
     private int? _lastRating;
@@ -173,7 +175,7 @@ public class InteractionCoordinator : IDisposable
     public LastResponseData LastResponse => _lastResponse;
 
     public event Action<string>? ResponseBubbleRequested;
-    public event Action<Point, TimeSpan>? FlightRequested;
+    public event Action<PointerTarget, TimeSpan>? FlightRequested;
     public event Action<InteractionDiagnostics>? DiagnosticsUpdated;
 
     public InteractionCoordinator(
@@ -196,6 +198,7 @@ public class InteractionCoordinator : IDisposable
         InteractionHistoryService historyService,
         InteractionTimelineService timelineService,
         PerformanceSummaryService performanceSummaryService,
+        PointerQualityService qualityService,
         ResilienceMonitorService? resilienceMonitor = null,
         AppLogService? appLog = null,
         ProviderPolicyService? providerPolicy = null)
@@ -219,6 +222,7 @@ public class InteractionCoordinator : IDisposable
         _historyService = historyService;
         _timelineService = timelineService;
         _performanceSummaryService = performanceSummaryService;
+        _qualityService = qualityService;
         _resilienceMonitor = resilienceMonitor;
         _appLog = appLog;
         _providerPolicy = providerPolicy ?? new ProviderPolicyService(configService);
@@ -729,6 +733,7 @@ public class InteractionCoordinator : IDisposable
                     userText, diag.ActiveProvider, aiResponse.RawText, cleanText);
 
                 _lastAttempt = attempt;
+                diag.LastAttempt = attempt;
                 diag.ParsedTag = tag;
                 diag.PointClamped = attempt.WasPointClamped;
                 diag.ParsedPointImageX = attempt.ParsedPointImageX;
@@ -796,7 +801,7 @@ public class InteractionCoordinator : IDisposable
             {
                 await Task.WhenAll(
                     RunTtsFlowAsync(cleanText, hasPoint: true, config, diag, token),
-                    FlyToPointAsync(tag, capture!, token));
+                    FlyToPointAsync(_lastAttempt!.Target, token));
             }
             else
             {
@@ -807,7 +812,7 @@ public class InteractionCoordinator : IDisposable
 
                 if (shouldFly)
                 {
-                    await FlyToPointAsync(tag, capture!, token);
+                    await FlyToPointAsync(_lastAttempt!.Target, token);
                 }
                 else if ((!ttsEnabled || skipShortNoPointTts) && !tag.HasPoint)
                 {
@@ -1121,24 +1126,25 @@ public class InteractionCoordinator : IDisposable
         }
     }
 
-    private async Task FlyToPointAsync(PointTag tag, CaptureResult capture, CancellationToken token)
+    private async Task FlyToPointAsync(PointerTarget target, CancellationToken token)
     {
-        if (_lastAttempt == null) return;
-
-        var screenPoint = new Point(_lastAttempt.FinalPointScreenX, _lastAttempt.FinalPointScreenY);
+        var config = _configService.Config;
         var flightStep = _timelineService.StartStep(
             InteractionTimelineStepNames.PointerFlight,
             new System.Collections.Generic.Dictionary<string, string>
             {
-                ["TargetX"] = Math.Round(screenPoint.X).ToString(),
-                ["TargetY"] = Math.Round(screenPoint.Y).ToString()
+                ["TargetX"] = Math.Round(target.FinalScreenPhysicalPoint.X).ToString(),
+                ["TargetY"] = Math.Round(target.FinalScreenPhysicalPoint.Y).ToString(),
+                ["TargetDipX"] = Math.Round(target.FinalOverlayDipPoint.X).ToString(),
+                ["TargetDipY"] = Math.Round(target.FinalOverlayDipPoint.Y).ToString(),
+                ["WasSnapped"] = target.WasSnapped.ToString()
             });
         
         try
         {
             // Fly to target
             _stateManager.SetState(CompanionState.FlyingToTarget, "Interaction target mapped");
-            System.Windows.Application.Current.Dispatcher.Invoke(() => FlightRequested?.Invoke(screenPoint, TimeSpan.FromSeconds(0.6)));
+            System.Windows.Application.Current.Dispatcher.Invoke(() => FlightRequested?.Invoke(target, TimeSpan.FromMilliseconds(config.PointerFlightDurationMs)));
             
             // Wait for flight and pointing to complete
             await Task.Delay(3000, token);
@@ -1158,12 +1164,11 @@ public class InteractionCoordinator : IDisposable
 
     public async Task ReplayLastPointAsync()
     {
-        if (_lastAttempt == null || _lastAttempt.ParsedPointImageX == null) return;
+        if (_lastAttempt == null) return;
 
-        var screenPoint = new Point(_lastAttempt.FinalPointScreenX, _lastAttempt.FinalPointScreenY);
-        
+        var config = _configService.Config;
         _stateManager.SetState(CompanionState.FlyingToTarget, "Replay last point");
-        System.Windows.Application.Current.Dispatcher.Invoke(() => FlightRequested?.Invoke(screenPoint, TimeSpan.FromSeconds(0.6)));
+        System.Windows.Application.Current.Dispatcher.Invoke(() => FlightRequested?.Invoke(_lastAttempt.Target, TimeSpan.FromMilliseconds(config.PointerFlightDurationMs)));
         
         await Task.Delay(3000);
         _stateManager.SetState(CompanionState.FollowingCursor, "Replay completed");
@@ -1200,6 +1205,10 @@ public class InteractionCoordinator : IDisposable
     public void SubmitManualRating(int rating)
     {
         if (_lastAttempt == null) return;
+        
+        // Record in the quality service
+        _qualityService.RecordFeedback(rating, _lastAttempt.Target);
+
         if (!_configService.Config.SaveDebugArtifacts) return;
 
         string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -1229,7 +1238,15 @@ public class InteractionCoordinator : IDisposable
         _lastRating = rating;
         _debugLogger.Log($"Manual rating submitted: {rating}");
         
-        System.Windows.Application.Current.Dispatcher.Invoke(() => ResponseBubbleRequested?.Invoke($"Dziękuję! Ocena: {rating}"));
+        string message = rating switch
+        {
+            3 => "Thank you! (Correct)",
+            2 => "Thank you! (Close)",
+            1 => "Thank you! (Wrong)",
+            _ => "Thank you!"
+        };
+        
+        System.Windows.Application.Current.Dispatcher.Invoke(() => ResponseBubbleRequested?.Invoke(message));
         Task.Delay(1500).ContinueWith(_ => System.Windows.Application.Current.Dispatcher.Invoke(() => ResponseBubbleRequested?.Invoke("")));
     }
 

@@ -25,7 +25,16 @@ This document provides a step-by-step manual testing guide for the PointyPal Pri
 - [ ] Confirm real STT transcription through Worker.
 - [ ] Confirm real Claude response through Worker.
 - [ ] Confirm real TTS playback through Worker (if enabled).
-- [ ] Confirm the pointer flies to the correct location if the response includes a point.
+- [ ] Confirm the pointer visual is a **triangle** (no circular background).
+- [ ] Confirm the pointer flies to the correct location and a **target ring** appears.
+- [ ] Confirm the **Status Slot** below the pointer shows correct feedback (Audio Bars, Spinner, etc.).
+- [ ] Confirm the pointer stays offset from the target.
+- [ ] **Pointer Calibration & Accuracy (PT012)**:
+    - [ ] Enable Developer Mode.
+    - [ ] Open Control Center > Advanced > Pointing.
+    - [ ] Run **Calibration** and verify center/corners.
+    - [ ] Record feedback (Correct/Close/Wrong) for at least 5 points.
+    - [ ] Run **Export Pointer QA Report** and verify it's saved in `debug`.
 - [ ] **Critical**: Disconnect network or set an invalid Worker URL. Confirm no fake/simulated response appears in Normal Mode.
 
 ## 4. Quick Ask
@@ -53,6 +62,8 @@ This document provides a step-by-step manual testing guide for the PointyPal Pri
 ## 7. Safe Mode
 - [ ] Launch PointyPal with `--safe-mode`.
 - [ ] Confirm the Safe Mode banner appears in the Control Center.
+- [ ] Confirm a subtle **amber exclamation badge** appears below the triangle pointer.
+- [ ] Confirm the heavy orange background is removed from the pointer visual.
 - [ ] Confirm real providers are disabled (forced to Fake).
 - [ ] Confirm simulated responses are clearly marked as diagnostic/recovery only.
 

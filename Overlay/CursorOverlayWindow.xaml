@@ -9,6 +9,6 @@
         ShowInTaskbar="False"
         Background="Transparent"
         Focusable="False"
-        Width="60" Height="60">
-    <local:CursorAvatarView x:Name="Avatar" />
+        Width="80" Height="100">
+    <local:PointerVisualControl x:Name="Pointer" />
 </Window>

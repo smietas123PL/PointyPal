@@ -1,26 +1,45 @@
 <Window x:Class="PointyPal.Overlay.TargetMarkerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="TargetMarkerWindow" Height="100" Width="100"
+        Title="TargetMarkerWindow" Height="150" Width="200"
         AllowsTransparency="True" WindowStyle="None" Topmost="True" ShowInTaskbar="False"
         Background="Transparent" Focusable="False" IsHitTestVisible="False">
     <Window.Resources>
         <Storyboard x:Key="PulseAnimation" RepeatBehavior="Forever">
             <DoubleAnimation Storyboard.TargetName="Ring" Storyboard.TargetProperty="Opacity" From="1.0" To="0.0" Duration="0:0:1" />
-            <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleX" From="1.0" To="2.0" Duration="0:0:1" />
-            <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleY" From="1.0" To="2.0" Duration="0:0:1" />
+            <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleX" From="1.0" To="3.0" Duration="0:0:1" />
+            <DoubleAnimation Storyboard.TargetName="Scale" Storyboard.TargetProperty="ScaleY" From="1.0" To="3.0" Duration="0:0:1" />
         </Storyboard>
     </Window.Resources>
-    <Grid>
-        <Ellipse x:Name="Ring" Width="20" Height="20" Stroke="#FF4DD0E1" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Canvas x:Name="MainCanvas">
+        <!-- Target Ring -->
+        <Ellipse x:Name="Ring" Width="34" Height="34" Stroke="#FACC15" StrokeThickness="2" Canvas.Left="83" Canvas.Top="58">
+            <Ellipse.Effect>
+                <DropShadowEffect BlurRadius="18" Color="#FACC15" Opacity="0.3" ShadowDepth="0" />
+            </Ellipse.Effect>
             <Ellipse.RenderTransform>
                 <TransformGroup>
-                    <ScaleTransform x:Name="Scale" CenterX="10" CenterY="10" />
-                    <TranslateTransform X="0" Y="0" />
+                    <ScaleTransform x:Name="Scale" CenterX="17" CenterY="17" />
                 </TransformGroup>
             </Ellipse.RenderTransform>
         </Ellipse>
-        <Ellipse Width="10" Height="10" Fill="#FF4DD0E1" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <TextBlock Text="test target" Foreground="White" FontSize="10" Margin="0,30,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-    </Grid>
+        
+        <!-- Center Dot -->
+        <Ellipse Width="14" Height="14" Fill="#FACC15" Canvas.Left="93" Canvas.Top="68">
+            <Ellipse.Effect>
+                <DropShadowEffect BlurRadius="10" Color="#FACC15" Opacity="0.4" ShadowDepth="0" />
+            </Ellipse.Effect>
+        </Ellipse>
+
+        <!-- Label Bubble -->
+        <Border x:Name="LabelBubble" CornerRadius="8" Padding="10,6" Canvas.Left="115" Canvas.Top="90" BorderThickness="1">
+            <Border.Background>
+                <SolidColorBrush Color="#0F172A" Opacity="0.9"/>
+            </Border.Background>
+            <Border.BorderBrush>
+                <SolidColorBrush Color="#FFFFFF" Opacity="0.15"/>
+            </Border.BorderBrush>
+            <TextBlock x:Name="LabelText" Text="Target" Foreground="White" FontSize="12" FontWeight="SemiBold" MaxWidth="180" TextTrimming="CharacterEllipsis" />
+        </Border>
+    </Canvas>
 </Window>
